@@ -1,0 +1,77 @@
+.importar-card {
+  max-width: 640px;
+}
+
+.importar-texto {
+  color: #374151;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0 0 1rem;
+}
+
+.importar-hojas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.importar-preview {
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.importar-preview table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.importar-preview thead th {
+  background: var(--d1-rojo-claro);
+  color: var(--d1-rojo-oscuro);
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+}
+
+.importar-preview tbody td {
+  padding: 0.45rem 0.6rem;
+  border-top: 1px solid #f1e9e9;
+}
+
+.importar-mas {
+  padding: 0.5rem 0.6rem;
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+}
+
+.importar-barra {
+  background: #f1e9e9;
+  border-radius: 999px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.importar-barra-relleno {
+  background: var(--d1-rojo);
+  height: 100%;
+  transition: width 0.2s ease;
+}
+
+.importar-errores {
+  margin-top: 0.75rem;
+  background: #fff4f4;
+  border: 1px solid #f3c9cc;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 0.82rem;
+  color: #8a1116;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.importar-errores ul {
+  margin: 0.4rem 0 0;
+  padding-left: 1.2rem;
+}

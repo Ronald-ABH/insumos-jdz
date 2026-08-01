@@ -52,3 +52,17 @@ export async function subirEvidencia(file: File): Promise<string> {
   const { data } = supabase.storage.from('evidencias').getPublicUrl(path)
   return data.publicUrl
 }
+
+export async function subirEvidenciaBlob(blob: Blob, extension: string): Promise<string> {
+  const path = `${crypto.randomUUID()}.${extension}`
+
+  const { error } = await supabase.storage.from('evidencias').upload(path, blob, {
+    cacheControl: '3600',
+    upsert: false,
+    contentType: blob.type || undefined,
+  })
+  if (error) throw error
+
+  const { data } = supabase.storage.from('evidencias').getPublicUrl(path)
+  return data.publicUrl
+}

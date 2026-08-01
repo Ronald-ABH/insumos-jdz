@@ -11,6 +11,7 @@ import type { NuevoRegistro, Registro } from '../types/registro'
 import { MESES } from '../lib/constants'
 import { exportarPDF } from '../lib/pdf'
 import RegistroModal from './RegistroModal'
+import ImportarExcelModal from './ImportarExcelModal'
 import './RegistrosTable.css'
 
 interface Props {
@@ -24,6 +25,7 @@ export default function RegistrosTable({ table, title, columnaInsumo }: Props) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [modalAbierto, setModalAbierto] = useState(false)
+  const [importarAbierto, setImportarAbierto] = useState(false)
   const [editando, setEditando] = useState<Registro | null>(null)
   const [busqueda, setBusqueda] = useState('')
   const [filtroMes, setFiltroMes] = useState('TODOS')
@@ -137,6 +139,9 @@ export default function RegistrosTable({ table, title, columnaInsumo }: Props) {
           <span className="registros-count">{filtrados.length} registro(s)</span>
         </div>
         <div className="registros-toolbar-acciones">
+          <button className="btn-secondary" onClick={() => setImportarAbierto(true)}>
+            Importar Excel
+          </button>
           <button className="btn-secondary" onClick={handleExportar} disabled={filtrados.length === 0}>
             Exportar PDF
           </button>
@@ -229,6 +234,14 @@ export default function RegistrosTable({ table, title, columnaInsumo }: Props) {
             setEditando(null)
           }}
           onSave={handleGuardar}
+        />
+      )}
+
+      {importarAbierto && (
+        <ImportarExcelModal
+          table={table}
+          onClose={() => setImportarAbierto(false)}
+          onImportado={cargar}
         />
       )}
     </div>
