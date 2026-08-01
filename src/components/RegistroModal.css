@@ -22,7 +22,7 @@
 
 .modal-card h2 {
   margin: 0 0 1.25rem;
-  color: #1c3f66;
+  color: var(--d1-rojo-oscuro);
   font-size: 1.2rem;
 }
 
@@ -38,6 +38,12 @@
   font-size: 0.82rem;
   color: #374151;
   gap: 0.3rem;
+}
+
+.opcional {
+  color: #9ca3af;
+  font-weight: 400;
+  font-size: 0.75rem;
 }
 
 .modal-grid .span-2 {
@@ -56,8 +62,8 @@
 .modal-grid input:focus,
 .modal-grid select:focus {
   outline: none;
-  border-color: #2f6faf;
-  box-shadow: 0 0 0 3px rgba(47, 111, 175, 0.15);
+  border-color: var(--d1-rojo);
+  box-shadow: 0 0 0 3px rgba(216, 19, 36, 0.15);
 }
 
 .preview-wrap img {
@@ -92,12 +98,12 @@
 }
 
 .btn-primary {
-  background: #1c3f66;
+  background: var(--d1-rojo);
   color: white;
 }
 
 .btn-primary:hover {
-  background: #2f6faf;
+  background: var(--d1-rojo-oscuro);
 }
 
 .btn-primary:disabled {

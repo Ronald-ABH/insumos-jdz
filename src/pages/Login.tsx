@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useAuth } from '../lib/AuthContext'
+import d1Logo from '../assets/brand/d1-logo.png'
 import './Login.css'
 
 export default function Login() {
@@ -19,6 +20,7 @@ export default function Login() {
   return (
     <div className="login-screen">
       <form className="login-card" onSubmit={handleSubmit}>
+        <img src={d1Logo} alt="D1" className="login-logo" />
         <h1>Solicitudes JDZ</h1>
         <p className="login-subtitle">Insumos y Hallazgos BPM / SST</p>
 

@@ -51,7 +51,7 @@ export default function RegistrosTable({ table, title, columnaInsumo }: Props) {
       const texto = busqueda.trim().toLowerCase()
       const coincideTexto =
         !texto ||
-        r.ceco.toLowerCase().includes(texto) ||
+        (r.ceco ?? '').toLowerCase().includes(texto) ||
         r.tienda.toLowerCase().includes(texto) ||
         r.insumo.toLowerCase().includes(texto)
       return coincideMes && coincideTexto
@@ -164,7 +164,7 @@ export default function RegistrosTable({ table, title, columnaInsumo }: Props) {
               {filtrados.map((r) => (
                 <tr key={r.id}>
                   <td>{r.mes}</td>
-                  <td>{r.ceco}</td>
+                  <td>{r.ceco ?? '—'}</td>
                   <td>{r.tienda}</td>
                   <td>{r.cantidad}</td>
                   <td>{r.insumo}</td>

@@ -22,7 +22,7 @@ export function exportarPDF({
   const fecha = new Date().toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' })
 
   doc.setFontSize(16)
-  doc.setTextColor(28, 63, 102)
+  doc.setTextColor(168, 15, 28)
   doc.text(titulo, 40, 40)
 
   let subtitulo = `Generado: ${fecha} · ${registros.length} registro(s)`
@@ -35,7 +35,7 @@ export function exportarPDF({
 
   const body = registros.map((r) => [
     r.mes,
-    r.ceco,
+    r.ceco ?? '—',
     r.tienda,
     String(r.cantidad),
     r.insumo,
@@ -48,13 +48,13 @@ export function exportarPDF({
     head: [['Mes', 'CECO', 'Tienda', 'Cant.', columnaInsumo, 'Fecha envío', 'Evidencia']],
     body,
     styles: { fontSize: 8, cellPadding: 5 },
-    headStyles: { fillColor: [28, 63, 102], textColor: 255 },
-    alternateRowStyles: { fillColor: [244, 246, 248] },
+    headStyles: { fillColor: [168, 15, 28], textColor: 255 },
+    alternateRowStyles: { fillColor: [253, 236, 235] },
     didParseCell: (data) => {
       if (data.section === 'body' && data.column.index === 6) {
         const registro = registros[data.row.index]
         if (registro?.evidencia_url) {
-          data.cell.styles.textColor = [47, 111, 175]
+          data.cell.styles.textColor = [216, 19, 36]
         }
       }
     },

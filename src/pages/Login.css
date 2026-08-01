@@ -3,33 +3,40 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1c3f66 0%, #2f6faf 100%);
+  background: linear-gradient(135deg, #a80f1c 0%, #d81324 55%, #f0454f 100%);
   padding: 1.5rem;
 }
 
 .login-card {
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 2.5rem 2rem;
   width: 100%;
-  max-width: 360px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  max-width: 380px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.28);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
+.login-logo {
+  display: block;
+  margin: 0 auto 1rem;
+  height: 64px;
+  width: auto;
+}
+
 .login-card h1 {
   margin: 0;
   font-size: 1.5rem;
-  color: #1c3f66;
+  color: var(--d1-rojo-oscuro);
   text-align: center;
 }
 
 .login-subtitle {
-  margin: 0 0 1.25rem;
+  margin: 0 0 1.5rem;
   text-align: center;
-  color: #6b7785;
+  color: var(--texto-suave);
   font-size: 0.9rem;
 }
 
@@ -40,38 +47,38 @@
 }
 
 .login-card input {
-  padding: 0.65rem 0.8rem;
-  border: 1px solid #d0d5dd;
-  border-radius: 8px;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--borde);
+  border-radius: 9px;
   font-size: 1rem;
   margin-bottom: 0.75rem;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .login-card input:focus {
-  border-color: #2f6faf;
-  box-shadow: 0 0 0 3px rgba(47, 111, 175, 0.15);
+  border-color: var(--d1-rojo);
+  box-shadow: 0 0 0 3px rgba(216, 19, 36, 0.15);
 }
 
 .login-error {
-  color: #d92d20;
+  color: var(--d1-rojo-oscuro);
   font-size: 0.85rem;
   margin: -0.25rem 0 0.75rem;
 }
 
 .login-card button {
-  background: #1c3f66;
+  background: var(--d1-rojo);
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 0.75rem;
+  border-radius: 9px;
+  padding: 0.8rem;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: background 0.15s ease;
 }
 
 .login-card button:hover {
-  background: #2f6faf;
+  background: var(--d1-rojo-oscuro);
 }

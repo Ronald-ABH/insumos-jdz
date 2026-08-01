@@ -12,7 +12,7 @@ interface Props {
 
 const vacio: NuevoRegistro = {
   mes: MESES[new Date().getMonth()],
-  ceco: '',
+  ceco: null,
   tienda: '',
   cantidad: 1,
   insumo: '',
@@ -46,8 +46,8 @@ export default function RegistroModal({ registro, onClose, onSave }: Props) {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (!form.ceco || !form.tienda || !form.insumo) {
-      setError('Completa CECO, Tienda e Insumo.')
+    if (!form.tienda || !form.insumo) {
+      setError('Completa Tienda e Insumo.')
       return
     }
 
@@ -87,10 +87,10 @@ export default function RegistroModal({ registro, onClose, onSave }: Props) {
           </label>
 
           <label>
-            CECO
+            CECO <span className="opcional">(opcional)</span>
             <input
-              value={form.ceco}
-              onChange={(e) => setForm({ ...form, ceco: e.target.value })}
+              value={form.ceco ?? ''}
+              onChange={(e) => setForm({ ...form, ceco: e.target.value || null })}
               placeholder="6A18T00145"
             />
           </label>

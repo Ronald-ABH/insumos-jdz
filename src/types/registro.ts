@@ -1,7 +1,7 @@
 export interface Registro {
   id: string
   mes: string
-  ceco: string
+  ceco: string | null
   tienda: string
   cantidad: number
   insumo: string
