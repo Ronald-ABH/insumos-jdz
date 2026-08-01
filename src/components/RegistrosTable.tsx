@@ -6,6 +6,7 @@ import {
   listRegistros,
   updateRegistro,
 } from '../lib/api'
+import { supabase } from '../lib/supabaseClient'
 import type { NuevoRegistro, Registro } from '../types/registro'
 import { MESES } from '../lib/constants'
 import { exportarPDF } from '../lib/pdf'
@@ -43,6 +44,33 @@ export default function RegistrosTable({ table, title, columnaInsumo }: Props) {
   useEffect(() => {
     cargar()
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [table])
+
+  // Sincronización en tiempo real: refleja cambios hechos desde otros dispositivos
+  useEffect(() => {
+    const canal = supabase
+      .channel(`realtime-${table}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const nuevo = payload.new as Registro
+            setRegistros((prev) => (prev.some((r) => r.id === nuevo.id) ? prev : [nuevo, ...prev]))
+          } else if (payload.eventType === 'UPDATE') {
+            const actualizado = payload.new as Registro
+            setRegistros((prev) => prev.map((r) => (r.id === actualizado.id ? actualizado : r)))
+          } else if (payload.eventType === 'DELETE') {
+            const eliminado = payload.old as Registro
+            setRegistros((prev) => prev.filter((r) => r.id !== eliminado.id))
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(canal)
+    }
   }, [table])
 
   const filtrados = useMemo(() => {
