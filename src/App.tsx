@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import Layout from './components/Layout'
 import Insumos from './pages/Insumos'
 import Hallazgos from './pages/Hallazgos'
+import Configuracion from './pages/Configuracion'
 
 function App() {
   const { isAuthenticated } = useAuth()
@@ -18,6 +19,7 @@ function App() {
         <Route index element={<Navigate to="/insumos" replace />} />
         <Route path="/insumos" element={<Insumos />} />
         <Route path="/hallazgos" element={<Hallazgos />} />
+        <Route path="/configuracion" element={<Configuracion />} />
         <Route path="*" element={<Navigate to="/insumos" replace />} />
       </Route>
     </Routes>
