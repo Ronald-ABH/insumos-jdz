@@ -11,6 +11,7 @@ interface Props {
 
 type Estado =
   | { paso: 'elegir-archivo' }
+  | { paso: 'leyendo'; mensaje: string }
   | { paso: 'elegir-hoja'; buffer: ArrayBuffer; hojas: HojaExcel[] }
   | { paso: 'revisar'; buffer: ArrayBuffer; hojaPath: string; filas: FilaImportada[] }
   | { paso: 'importando'; total: number; hechos: number; errores: string[] }
@@ -23,11 +24,13 @@ export default function ImportarExcelModal({ table, onClose, onImportado }: Prop
   const handleArchivo = async (file: File | null) => {
     if (!file) return
     setError(null)
+    setEstado({ paso: 'leyendo', mensaje: 'Abriendo el archivo...' })
     try {
       const buffer = await file.arrayBuffer()
       const hojas = await listarHojas(buffer)
       if (hojas.length === 0) {
         setError('No se encontraron hojas en este archivo.')
+        setEstado({ paso: 'elegir-archivo' })
         return
       }
       if (hojas.length === 1) {
@@ -37,20 +40,26 @@ export default function ImportarExcelModal({ table, onClose, onImportado }: Prop
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo leer el archivo. ¿Es un .xlsx válido?')
+      setEstado({ paso: 'elegir-archivo' })
     }
   }
 
   const elegirHoja = async (buffer: ArrayBuffer, hojaPath: string) => {
     setError(null)
+    setEstado({ paso: 'leyendo', mensaje: 'Leyendo la hoja...' })
     try {
-      const filas = await parsearHoja(buffer, hojaPath)
+      const filas = await parsearHoja(buffer, hojaPath, (mensaje) =>
+        setEstado({ paso: 'leyendo', mensaje })
+      )
       if (filas.length === 0) {
         setError('No se encontraron filas de datos en esa hoja (revisa que tenga columnas como Mes, Tienda, Insumo).')
+        setEstado({ paso: 'elegir-archivo' })
         return
       }
       setEstado({ paso: 'revisar', buffer, hojaPath, filas })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo leer la hoja seleccionada.')
+      setEstado({ paso: 'elegir-archivo' })
     }
   }
 
@@ -87,8 +96,10 @@ export default function ImportarExcelModal({ table, onClose, onImportado }: Prop
     onImportado()
   }
 
+  const bloqueado = estado.paso === 'importando' || estado.paso === 'leyendo'
+
   return (
-    <div className="modal-backdrop" onClick={estado.paso === 'importando' ? undefined : onClose}>
+    <div className="modal-backdrop" onClick={bloqueado ? undefined : onClose}>
       <div className="modal-card importar-card" onClick={(e) => e.stopPropagation()}>
         <h2>Importar desde Excel</h2>
 
@@ -96,14 +107,24 @@ export default function ImportarExcelModal({ table, onClose, onImportado }: Prop
           <>
             <p className="importar-texto">
               Selecciona el archivo .xlsx. Voy a buscar automáticamente las columnas de Mes, CECO,
-              Tienda, Cantidad, Insumo, Fecha de envío, y también las fotos de evidencia pegadas en
-              las celdas.
+              Tienda, Cantidad, Insumo, Fecha de envío, y también las fotos de evidencia (tanto las
+              pegadas como las insertadas "en la celda"). Si el archivo es muy pesado (varios cientos
+              de MB por las fotos), puede tardar uno o dos minutos — no cierres la ventana.
             </p>
             <input
               type="file"
               accept=".xlsx"
               onChange={(e) => handleArchivo(e.target.files?.[0] ?? null)}
             />
+          </>
+        )}
+
+        {estado.paso === 'leyendo' && (
+          <>
+            <p className="importar-texto">{estado.mensaje}</p>
+            <div className="importar-barra">
+              <div className="importar-barra-relleno importar-barra-indeterminada" />
+            </div>
           </>
         )}
 
@@ -201,7 +222,7 @@ export default function ImportarExcelModal({ table, onClose, onImportado }: Prop
         {error && <p className="modal-error">{error}</p>}
 
         <div className="modal-actions">
-          {estado.paso !== 'importando' && estado.paso !== 'listo' && (
+          {estado.paso !== 'importando' && estado.paso !== 'listo' && estado.paso !== 'leyendo' && (
             <button className="btn-secondary" onClick={onClose}>
               Cancelar
             </button>

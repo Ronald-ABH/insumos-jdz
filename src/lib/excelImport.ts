@@ -23,6 +23,7 @@ const CAMPOS: Record<string, string[]> = {
   cantidad: ['CANTIDAD'],
   insumo: ['INSUMO', 'HALLAZGO'],
   fecha_envio: ['ENVIO A TIENDA', 'FECHA DE ENVIO', 'FECHA ENVIO', 'FECHA'],
+  evidencia: ['EVIDENCIA'],
 }
 
 function normalizarTexto(s: string): string {
@@ -159,20 +160,26 @@ export async function listarHojas(arrayBuffer: ArrayBuffer): Promise<HojaExcel[]
 
 export async function parsearHoja(
   arrayBuffer: ArrayBuffer,
-  hojaPath: string
+  hojaPath: string,
+  onProgreso?: (mensaje: string) => void
 ): Promise<FilaImportada[]> {
+  const reportar = (m: string) => onProgreso?.(m)
+
+  reportar('Abriendo el archivo...')
   const zip = await JSZip.loadAsync(arrayBuffer)
   const sharedStrings = await leerSharedStrings(zip)
 
   const sheetFile = zip.file(hojaPath)
   if (!sheetFile) throw new Error('No se encontró la hoja seleccionada dentro del archivo.')
+
+  reportar('Leyendo filas y columnas...')
   const sheetXml = await sheetFile.async('string')
   const doc = new DOMParser().parseFromString(sheetXml, 'application/xml')
 
-  // --- Leer celdas por fila ---
+  // --- Leer celdas por fila (valores + referencias a imagenes "en la celda") ---
   type FilaCruda = Map<number, string>
   const filas = new Map<number, FilaCruda>()
-  let maxCol = 0
+  const vmPorFilaCol = new Map<number, Map<number, number>>()
 
   for (const rowEl of findDescendants(doc, 'row')) {
     const rowNum = parseInt(rowEl.getAttribute('r') ?? '0', 10)
@@ -181,7 +188,13 @@ export async function parsearHoja(
       if (localName(c.tagName) !== 'c') continue
       const ref = c.getAttribute('r') ?? ''
       const { col } = cellRefToRowCol(ref)
-      if (col > maxCol) maxCol = col
+
+      const vm = c.getAttribute('vm')
+      if (vm) {
+        if (!vmPorFilaCol.has(rowNum)) vmPorFilaCol.set(rowNum, new Map())
+        vmPorFilaCol.get(rowNum)!.set(col, parseInt(vm, 10))
+      }
+
       const tipo = c.getAttribute('t')
       let valor = ''
       if (tipo === 'inlineStr') {
@@ -206,7 +219,6 @@ export async function parsearHoja(
   if (numerosFila.length === 0) return []
 
   // --- Detectar la fila de encabezados: puede no ser la primera (títulos, filas en blanco, etc.) ---
-  // Revisamos las primeras filas y nos quedamos con la que más coincidencias tenga con los campos esperados.
   let filaHeader = numerosFila[0]
   let colPorCampo: Record<string, number> = {}
   let mejorPuntaje = -1
@@ -231,10 +243,22 @@ export async function parsearHoja(
     }
   }
 
-  // --- Imágenes embebidas: mapear numero de fila -> blob ---
-  const imagenesPorFila = await leerImagenesDeHoja(zip, hojaPath)
+  // --- Imágenes: primero el formato moderno "Insertar imagen en la celda" (Excel 365) ---
+  reportar('Buscando fotos en formato moderno (imagen en celda)...')
+  const mediaPorVm = await leerRichDataImagenes(zip)
 
-  const resultado: FilaImportada[] = []
+  // --- y como respaldo, el formato clásico de imagen flotante anclada a una celda ---
+  reportar('Buscando fotos en formato clásico (flotantes)...')
+  const imagenesFlotantesPorFila = await leerImagenesDeHoja(zip, hojaPath)
+
+  const colEvidencia = colPorCampo['evidencia']
+
+  interface FilaEnConstruccion extends Omit<FilaImportada, 'imagen'> {
+    mediaPathPendiente: string | null
+    imagenFlotante: { blob: Blob; extension: string } | null
+  }
+
+  const filasConstruidas: FilaEnConstruccion[] = []
   for (const rowNum of numerosFila) {
     if (rowNum <= filaHeader) continue
     const celdas = filas.get(rowNum)!
@@ -251,7 +275,18 @@ export async function parsearHoja(
     const cantidad = cantidadTexto ? Math.round(Number(cantidadTexto)) || 1 : 1
     const fechaTexto = get('fecha_envio')
 
-    resultado.push({
+    // Buscar la imagen de esta fila: primero en la columna de evidencia (formato moderno),
+    // si no hay columna detectada usamos cualquier celda con imagen de esa fila.
+    let mediaPathPendiente: string | null = null
+    const vmDeFila = vmPorFilaCol.get(rowNum)
+    if (vmDeFila) {
+      const vm = colEvidencia !== undefined ? vmDeFila.get(colEvidencia) : vmDeFila.values().next().value
+      if (vm !== undefined) {
+        mediaPathPendiente = mediaPorVm.get(vm) ?? null
+      }
+    }
+
+    filasConstruidas.push({
       filaExcel: rowNum,
       mes: get('mes').toUpperCase() || 'SIN MES',
       ceco: get('ceco') || null,
@@ -259,11 +294,30 @@ export async function parsearHoja(
       cantidad,
       insumo: insumo || 'SIN DESCRIPCION',
       fecha_envio: fechaTexto ? textoAFecha(fechaTexto) : null,
-      imagen: imagenesPorFila.get(rowNum) ?? null,
+      mediaPathPendiente,
+      imagenFlotante: mediaPathPendiente ? null : imagenesFlotantesPorFila.get(rowNum) ?? null,
     })
   }
 
-  return resultado
+  // --- Resolver los blobs reales de las fotos en formato moderno, una por una ---
+  const total = filasConstruidas.filter((f) => f.mediaPathPendiente).length
+  let hechas = 0
+  for (const fila of filasConstruidas) {
+    if (!fila.mediaPathPendiente) continue
+    hechas += 1
+    reportar(`Extrayendo fotos (${hechas} de ${total})...`)
+    const mediaFile = zip.file(fila.mediaPathPendiente)
+    if (mediaFile) {
+      const arrayBuffer = await mediaFile.async('arraybuffer')
+      const extension = extensionDeArchivo(fila.mediaPathPendiente)
+      fila.imagenFlotante = { blob: new Blob([arrayBuffer], { type: mimeDeExtension(extension) }), extension }
+    }
+  }
+
+  return filasConstruidas.map(({ mediaPathPendiente: _mediaPathPendiente, imagenFlotante, ...resto }) => ({
+    ...resto,
+    imagen: imagenFlotante,
+  }))
 }
 
 function extensionDeArchivo(path: string): string {
@@ -281,6 +335,69 @@ function mimeDeExtension(ext: string): string {
     webp: 'image/webp',
   }
   return mapa[ext] ?? 'application/octet-stream'
+}
+
+// Excel 365 "Insertar imagen > En la celda": la imagen queda referenciada desde la celda
+// via el atributo vm="N" (value metadata), no como un dibujo flotante clasico.
+// Cadena: celda vm -> xl/metadata.xml (bk en orden, vm-1) -> indice de rich value
+//         -> xl/richData/rdrichvalue.xml (rv en orden) -> indice de relacion
+//         -> xl/richData/richValueRel.xml (rel en orden) -> r:id
+//         -> xl/richData/_rels/richValueRel.xml.rels -> ruta real del archivo de imagen
+async function leerRichDataImagenes(zip: JSZip): Promise<Map<number, string>> {
+  const resultado = new Map<number, string>()
+
+  const metadataFile = zip.file('xl/metadata.xml')
+  const rvFile = zip.file('xl/richData/rdrichvalue.xml')
+  const relListFile = zip.file('xl/richData/richValueRel.xml')
+  const relsFile = zip.file('xl/richData/_rels/richValueRel.xml.rels')
+  if (!metadataFile || !rvFile || !relListFile || !relsFile) return resultado
+
+  const metadataDoc = new DOMParser().parseFromString(
+    await metadataFile.async('string'),
+    'application/xml'
+  )
+  const bks = findDescendants(metadataDoc, 'bk')
+  const richIndexPorVm: number[] = bks.map((bk) => {
+    const rvb = findDescendants(bk, 'rvb')[0]
+    const i = rvb ? getAttrAny(rvb, 'i') : null
+    return i !== null ? parseInt(i, 10) : -1
+  })
+
+  const rvDoc = new DOMParser().parseFromString(await rvFile.async('string'), 'application/xml')
+  const rvNodes = findDescendants(rvDoc, 'rv')
+  const relIndexPorRichIndex: number[] = rvNodes.map((rv) => {
+    const primero = childElements(rv).find((c) => localName(c.tagName) === 'v')
+    const txt = primero?.textContent
+    return txt !== undefined && txt !== null ? parseInt(txt, 10) : -1
+  })
+
+  const relListDoc = new DOMParser().parseFromString(
+    await relListFile.async('string'),
+    'application/xml'
+  )
+  const relNodes = findDescendants(relListDoc, 'rel')
+  const ridPorRelIndex: string[] = relNodes.map((rel) => getAttrAny(rel, 'id') ?? '')
+
+  const relsDoc = new DOMParser().parseFromString(await relsFile.async('string'), 'application/xml')
+  const targetPorRid = new Map<string, string>()
+  for (const rel of findDescendants(relsDoc, 'Relationship')) {
+    const id = rel.getAttribute('Id')
+    const target = rel.getAttribute('Target')
+    if (id && target) targetPorRid.set(id, target)
+  }
+
+  richIndexPorVm.forEach((richIndex, idx) => {
+    const vm = idx + 1
+    if (richIndex < 0 || richIndex >= relIndexPorRichIndex.length) return
+    const relIndex = relIndexPorRichIndex[richIndex]
+    if (relIndex < 0 || relIndex >= ridPorRelIndex.length) return
+    const rid = ridPorRelIndex[relIndex]
+    const target = targetPorRid.get(rid)
+    if (!target) return
+    resultado.set(vm, resolverRuta('xl/richData', target))
+  })
+
+  return resultado
 }
 
 async function leerImagenesDeHoja(
@@ -311,7 +428,16 @@ async function leerImagenesDeHoja(
   const drawingPath = resolverRuta(dirHoja, drawingTarget)
   const drawingFile = zip.file(drawingPath)
   if (!drawingFile) return resultado
+
   const drawingXml = await drawingFile.async('string')
+
+  // Estos dibujos pueden venir llenos de formas invisibles (marcadores de comentarios, etc.)
+  // y pesar decenas de MB sin tener ni una sola foto real. Antes de intentar interpretar
+  // todo el XML (lento y pesado), confirmamos que de verdad haya una imagen incrustada.
+  if (!drawingXml.includes('r:embed=') && !drawingXml.includes('r:embed =')) {
+    return resultado
+  }
+
   const drawingDoc = new DOMParser().parseFromString(drawingXml, 'application/xml')
 
   // 2) drawing -> rels del drawing (rId -> archivo de media)
@@ -338,6 +464,9 @@ async function leerImagenesDeHoja(
   ]
 
   for (const ancla of anclas) {
+    const blip = findDescendants(ancla, 'blip')[0]
+    if (!blip) continue // forma sin imagen real (autoshape, comentario, etc.)
+
     const fromEl = findDescendants(ancla, 'from')[0]
     if (!fromEl) continue
     const rowEl = childElements(fromEl).find((c) => localName(c.tagName) === 'row')
@@ -345,8 +474,6 @@ async function leerImagenesDeHoja(
     const rowIndex0 = parseInt(rowEl.textContent ?? '0', 10)
     const rowNum = rowIndex0 + 1 // xlsx anchors son 0-indexados
 
-    const blip = findDescendants(ancla, 'blip')[0]
-    if (!blip) continue
     const rId = getAttrAny(blip, 'embed')
     if (!rId) continue
     const mediaPath = rIdToMedia.get(rId)
