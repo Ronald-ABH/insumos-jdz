@@ -1,5 +1,5 @@
 import { supabase } from './supabaseClient'
-import type { NuevoRegistro, Registro } from '../types/registro'
+import type { NuevoRegistro, Registro, Tienda } from '../types/registro'
 
 export type TableName = 'insumos' | 'hallazgos'
 
@@ -51,6 +51,26 @@ export async function subirEvidencia(file: File): Promise<string> {
 
   const { data } = supabase.storage.from('evidencias').getPublicUrl(path)
   return data.publicUrl
+}
+
+export async function listarTiendas(): Promise<Tienda[]> {
+  const { data, error } = await supabase.from('tiendas').select('*').order('nombre')
+  if (error) throw error
+  return (data ?? []) as Tienda[]
+}
+
+export async function crearTienda(
+  nombre: string,
+  ceco: string | null = null,
+  departamento: string | null = null
+): Promise<Tienda> {
+  const { data, error } = await supabase
+    .from('tiendas')
+    .insert({ nombre, ceco, departamento })
+    .select()
+    .single()
+  if (error) throw error
+  return data as Tienda
 }
 
 export async function subirEvidenciaBlob(blob: Blob, extension: string): Promise<string> {

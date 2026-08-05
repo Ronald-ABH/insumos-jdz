@@ -11,3 +11,11 @@ export interface Registro {
 }
 
 export type NuevoRegistro = Omit<Registro, 'id' | 'created_at'>
+
+export interface Tienda {
+  id: string
+  nombre: string
+  ceco: string | null
+  departamento: string | null
+  created_at: string
+}

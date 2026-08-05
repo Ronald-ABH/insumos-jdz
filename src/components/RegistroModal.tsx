@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { MESES } from '../lib/constants'
 import { subirEvidencia } from '../lib/api'
+import TiendaInput from './TiendaInput'
 import type { NuevoRegistro, Registro } from '../types/registro'
 import './RegistroModal.css'
 
@@ -97,10 +98,12 @@ export default function RegistroModal({ registro, onClose, onSave }: Props) {
 
           <label className="span-2">
             Tienda
-            <input
+            <TiendaInput
               value={form.tienda}
-              onChange={(e) => setForm({ ...form, tienda: e.target.value })}
-              placeholder="TIENDA ESCUELA SALDAÑA"
+              onChange={(nombre) => setForm({ ...form, tienda: nombre })}
+              onSeleccionarTienda={(tienda) =>
+                setForm((prev) => ({ ...prev, tienda: tienda.nombre, ceco: tienda.ceco ?? prev.ceco }))
+              }
             />
           </label>
 
