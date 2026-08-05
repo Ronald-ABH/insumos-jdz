@@ -86,10 +86,8 @@ export default function Etiquetas() {
         <div className="etiquetas-grid">
           {tiendasAImprimir.map((t) => (
             <div className="etiqueta" key={t.id}>
-              <div className="etiqueta-tienda">
-                {t.nombre}
-                {t.departamento && <span className="etiqueta-depto"> ({t.departamento})</span>}
-              </div>
+              <div className="etiqueta-tienda">{t.nombre}</div>
+              {t.departamento && <div className="etiqueta-depto">{t.departamento}</div>}
               <div className="etiqueta-jdz">{t.jdz ?? '—'}</div>
               <div className="etiqueta-insumo">{insumo || '—'}</div>
               <div className="etiqueta-fecha">{fecha || '—'}</div>
