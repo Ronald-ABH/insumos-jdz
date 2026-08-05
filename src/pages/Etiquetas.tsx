@@ -11,6 +11,23 @@ function normalizar(texto: string) {
     .trim()
 }
 
+// Calcula un tama\u00f1o de letra (en vh) que se achica cuando el texto es largo,
+// para que siempre quepa dentro de la hoja de la etiqueta.
+function tamanoFuente(texto: string, base: number, limite: number, minimo: number) {
+  const largo = texto.trim().length
+  if (largo <= limite) return `${base}vh`
+  return `${Math.max(minimo, base * (limite / largo))}vh`
+}
+
+// Convierte una fecha en formato ISO (AAAA-MM-DD, la que usa <input type="date">)
+// a DD/MM/AAAA para mostrarla en la etiqueta.
+function formatearFecha(fechaISO: string) {
+  const partes = fechaISO.split('-')
+  if (partes.length !== 3) return fechaISO
+  const [anio, mes, dia] = partes
+  return `${dia}/${mes}/${anio}`
+}
+
 export default function Etiquetas() {
   const [tiendas, setTiendas] = useState<Tienda[]>([])
   const [loading, setLoading] = useState(true)
@@ -69,6 +86,17 @@ export default function Etiquetas() {
     [tiendas, seleccionados]
   )
 
+  const fechaFormateada = fecha ? formatearFecha(fecha) : '—'
+
+  const manejarImprimir = () => {
+    // Chrome usa el <title> de la página como encabezado al imprimir; lo vaciamos
+    // un momento para que no aparezca "Solicitudes JDZ - D1" arriba de cada hoja.
+    const tituloOriginal = document.title
+    document.title = ''
+    window.print()
+    document.title = tituloOriginal
+  }
+
   if (loading) return <p className="registros-msg">Cargando...</p>
   if (error) return <p className="registros-msg error">{error}</p>
 
@@ -79,20 +107,29 @@ export default function Etiquetas() {
           <button className="btn-secondary" onClick={() => setVista('elegir')}>
             ← Volver a elegir
           </button>
-          <button className="btn-primary" onClick={() => window.print()}>
+          <button className="btn-primary" onClick={manejarImprimir}>
             Imprimir
           </button>
         </div>
         <div className="etiquetas-grid">
-          {tiendasAImprimir.map((t) => (
-            <div className="etiqueta" key={t.id}>
-              <div className="etiqueta-tienda">{t.nombre}</div>
-              {t.departamento && <div className="etiqueta-depto">{t.departamento}</div>}
-              <div className="etiqueta-jdz">{t.jdz ?? '—'}</div>
-              <div className="etiqueta-insumo">{insumo || '—'}</div>
-              <div className="etiqueta-fecha">{fecha || '—'}</div>
-            </div>
-          ))}
+          {tiendasAImprimir.map((t) => {
+            const estiloAjustable = {
+              '--fs-tienda': tamanoFuente(t.nombre, 8, 16, 3),
+              '--fs-depto': tamanoFuente(t.departamento ?? '', 3.5, 20, 2),
+              '--fs-jdz': tamanoFuente(t.jdz ?? '—', 5, 18, 2.2),
+              '--fs-insumo': tamanoFuente(insumo || '—', 6, 20, 2.2),
+              '--fs-fecha': tamanoFuente(fechaFormateada, 3.5, 15, 1.8),
+            } as React.CSSProperties
+            return (
+              <div className="etiqueta" key={t.id} style={estiloAjustable}>
+                <div className="etiqueta-tienda">{t.nombre}</div>
+                {t.departamento && <div className="etiqueta-depto">{t.departamento}</div>}
+                <div className="etiqueta-jdz">{t.jdz ?? '—'}</div>
+                <div className="etiqueta-insumo">{insumo || '—'}</div>
+                <div className="etiqueta-fecha">{fechaFormateada}</div>
+              </div>
+            )
+          })}
         </div>
       </div>
     )

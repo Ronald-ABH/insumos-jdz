@@ -131,29 +131,29 @@
   }
 
   .etiqueta-tienda {
-    font-size: 8vh;
+    font-size: var(--fs-tienda, 8vh);
     line-height: 1.15;
     color: #000;
   }
 
   .etiqueta-depto {
-    font-size: 3.5vh;
+    font-size: var(--fs-depto, 3.5vh);
     color: #000;
     font-weight: 500;
   }
 
   .etiqueta-jdz {
-    font-size: 5vh;
+    font-size: var(--fs-jdz, 5vh);
     color: #000;
   }
 
   .etiqueta-insumo {
-    font-size: 6vh;
+    font-size: var(--fs-insumo, 6vh);
     color: #000;
   }
 
   .etiqueta-fecha {
-    font-size: 3.5vh;
+    font-size: var(--fs-fecha, 3.5vh);
     color: #000;
     margin-top: 0;
   }
