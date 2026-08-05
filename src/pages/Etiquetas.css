@@ -4,6 +4,37 @@
   gap: 1rem;
 }
 
+.etiquetas-lote {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+  background: #f9fafb;
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+}
+
+.etiquetas-lote label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  color: #374151;
+}
+
+.etiquetas-lote input {
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.etiquetas-aviso {
+  margin: -0.5rem 0 0;
+  font-size: 0.8rem;
+  color: #b45309;
+}
+
 .etiquetas-barra {
   display: flex;
   justify-content: space-between;
