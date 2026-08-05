@@ -29,6 +29,7 @@ export default function RegistrosTable({ table, title, columnaInsumo }: Props) {
   const [editando, setEditando] = useState<Registro | null>(null)
   const [busqueda, setBusqueda] = useState('')
   const [filtroMes, setFiltroMes] = useState('TODOS')
+  const [filtroEvidencia, setFiltroEvidencia] = useState('TODOS')
 
   const cargar = async () => {
     setLoading(true)
@@ -76,17 +77,27 @@ export default function RegistrosTable({ table, title, columnaInsumo }: Props) {
   }, [table])
 
   const filtrados = useMemo(() => {
+    const normalizar = (s: string) =>
+      s
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim()
+    const texto = normalizar(busqueda)
     return registros.filter((r) => {
       const coincideMes = filtroMes === 'TODOS' || r.mes === filtroMes
-      const texto = busqueda.trim().toLowerCase()
       const coincideTexto =
         !texto ||
-        (r.ceco ?? '').toLowerCase().includes(texto) ||
-        r.tienda.toLowerCase().includes(texto) ||
-        r.insumo.toLowerCase().includes(texto)
-      return coincideMes && coincideTexto
+        normalizar(r.ceco ?? '').includes(texto) ||
+        normalizar(r.tienda).includes(texto) ||
+        normalizar(r.insumo).includes(texto)
+      const coincideEvidencia =
+        filtroEvidencia === 'TODOS' ||
+        (filtroEvidencia === 'CON' && !!r.evidencia_url) ||
+        (filtroEvidencia === 'SIN' && !r.evidencia_url)
+      return coincideMes && coincideTexto && coincideEvidencia
     })
-  }, [registros, filtroMes, busqueda])
+  }, [registros, filtroMes, busqueda, filtroEvidencia])
 
   const handleNuevo = () => {
     setEditando(null)
@@ -165,6 +176,11 @@ export default function RegistrosTable({ table, title, columnaInsumo }: Props) {
               {m}
             </option>
           ))}
+        </select>
+        <select value={filtroEvidencia} onChange={(e) => setFiltroEvidencia(e.target.value)}>
+          <option value="TODOS">Con o sin evidencia</option>
+          <option value="CON">Con evidencia</option>
+          <option value="SIN">Sin evidencia</option>
         </select>
       </div>
 
