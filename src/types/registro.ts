@@ -17,5 +17,6 @@ export interface Tienda {
   nombre: string
   ceco: string | null
   departamento: string | null
+  jdz: string | null
   created_at: string
 }

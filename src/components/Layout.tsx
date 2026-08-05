@@ -28,6 +28,9 @@ export default function Layout() {
         <NavLink to="/hallazgos" className={({ isActive }) => (isActive ? 'active' : '')}>
           Hallazgos BPM / SST
         </NavLink>
+        <NavLink to="/etiquetas" className={({ isActive }) => (isActive ? 'active' : '')}>
+          Etiquetas
+        </NavLink>
         <NavLink to="/configuracion" className={({ isActive }) => (isActive ? 'active' : '')}>
           Configuración
         </NavLink>
