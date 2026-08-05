@@ -9,9 +9,9 @@ import {
 import { supabase } from '../lib/supabaseClient'
 import type { NuevoRegistro, Registro } from '../types/registro'
 import { MESES } from '../lib/constants'
-import { exportarPDF } from '../lib/pdf'
 import RegistroModal from './RegistroModal'
 import ImportarExcelModal from './ImportarExcelModal'
+import ExportarPDFModal from './ExportarPDFModal'
 import './RegistrosTable.css'
 
 interface Props {
@@ -26,6 +26,7 @@ export default function RegistrosTable({ table, title, columnaInsumo }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [modalAbierto, setModalAbierto] = useState(false)
   const [importarAbierto, setImportarAbierto] = useState(false)
+  const [exportarAbierto, setExportarAbierto] = useState(false)
   const [editando, setEditando] = useState<Registro | null>(null)
   const [busqueda, setBusqueda] = useState('')
   const [filtroMes, setFiltroMes] = useState('TODOS')
@@ -120,16 +121,6 @@ export default function RegistrosTable({ table, title, columnaInsumo }: Props) {
     }
   }
 
-  const handleExportar = () => {
-    exportarPDF({
-      titulo: title,
-      columnaInsumo,
-      registros: filtrados,
-      filtroMes,
-      busqueda,
-    })
-  }
-
   const handleGuardar = async (data: NuevoRegistro) => {
     if (editando) {
       const actualizado = await updateRegistro(table, editando.id, data)
@@ -153,7 +144,11 @@ export default function RegistrosTable({ table, title, columnaInsumo }: Props) {
           <button className="btn-secondary" onClick={() => setImportarAbierto(true)}>
             Importar Excel
           </button>
-          <button className="btn-secondary" onClick={handleExportar} disabled={filtrados.length === 0}>
+          <button
+            className="btn-secondary"
+            onClick={() => setExportarAbierto(true)}
+            disabled={registros.length === 0}
+          >
             Exportar PDF
           </button>
           <button className="btn-primary" onClick={handleNuevo}>
@@ -258,6 +253,18 @@ export default function RegistrosTable({ table, title, columnaInsumo }: Props) {
           table={table}
           onClose={() => setImportarAbierto(false)}
           onImportado={cargar}
+        />
+      )}
+
+      {exportarAbierto && (
+        <ExportarPDFModal
+          titulo={title}
+          columnaInsumo={columnaInsumo}
+          todos={registros}
+          filtrados={filtrados}
+          filtroMes={filtroMes}
+          busqueda={busqueda}
+          onClose={() => setExportarAbierto(false)}
         />
       )}
     </div>
