@@ -43,9 +43,10 @@
 }
 
 .etiquetas-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
+  align-content: flex-start;
 }
 
 .etiqueta {
@@ -58,6 +59,8 @@
   break-inside: avoid;
   page-break-inside: avoid;
   background: white;
+  width: calc(33.333% - 0.5rem);
+  box-sizing: border-box;
 }
 
 .etiqueta-tienda {
@@ -105,12 +108,12 @@
   }
 
   .etiquetas-grid {
-    grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
   }
 
   .etiqueta {
     border: 1.5px solid #000;
+    width: calc(50% - 0.35rem);
   }
 
   @page {
