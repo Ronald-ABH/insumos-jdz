@@ -29,40 +29,61 @@ export default function ExportarPDFModal({
   const [alcance, setAlcance] = useState<Alcance>('filtros')
   const [mesesElegidos, setMesesElegidos] = useState<string[]>([])
   const [evidencia, setEvidencia] = useState<Evidencia>('TODOS')
+  const [insumosElegidos, setInsumosElegidos] = useState<string[]>([])
+  const [buscarInsumo, setBuscarInsumo] = useState('')
+
+  const insumosDisponibles = useMemo(
+    () => Array.from(new Set(todos.map((r) => r.insumo))).sort((a, b) => a.localeCompare(b)),
+    [todos]
+  )
+
+  const insumosVisibles = useMemo(() => {
+    const q = buscarInsumo.trim().toLowerCase()
+    if (!q) return insumosDisponibles
+    return insumosDisponibles.filter((i) => i.toLowerCase().includes(q))
+  }, [insumosDisponibles, buscarInsumo])
 
   const toggleMes = (mes: string) => {
     setMesesElegidos((prev) => (prev.includes(mes) ? prev.filter((m) => m !== mes) : [...prev, mes]))
   }
 
-  const seleccionFinal = useMemo(() => {
-    if (alcance === 'filtros') return filtrados
+  const toggleInsumo = (insumo: string) => {
+    setInsumosElegidos((prev) =>
+      prev.includes(insumo) ? prev.filter((i) => i !== insumo) : [...prev, insumo]
+    )
+  }
 
-    let base = todos
+  const seleccionFinal = useMemo(() => {
+    let base = alcance === 'filtros' ? filtrados : todos
     if (alcance === 'meses' && mesesElegidos.length > 0) {
       base = base.filter((r) => mesesElegidos.includes(r.mes))
     }
-    if (evidencia === 'CON') base = base.filter((r) => !!r.evidencia_url)
-    if (evidencia === 'SIN') base = base.filter((r) => !r.evidencia_url)
+    if (alcance !== 'filtros') {
+      if (evidencia === 'CON') base = base.filter((r) => !!r.evidencia_url)
+      if (evidencia === 'SIN') base = base.filter((r) => !r.evidencia_url)
+    }
+    if (insumosElegidos.length > 0) base = base.filter((r) => insumosElegidos.includes(r.insumo))
     return base
-  }, [alcance, mesesElegidos, evidencia, todos, filtrados])
+  }, [alcance, mesesElegidos, evidencia, insumosElegidos, todos, filtrados])
 
   const generar = () => {
-    if (alcance === 'filtros') {
+    if (alcance === 'filtros' && insumosElegidos.length === 0) {
       exportarPDF({ titulo, columnaInsumo, registros: filtrados, filtroMes, busqueda })
       onClose()
       return
     }
 
-    const notaMeses = alcance === 'meses' && mesesElegidos.length > 0 ? mesesElegidos.join(', ') : undefined
-    const notaEvidencia =
-      evidencia !== 'TODOS' ? `Evidencia: ${evidencia === 'CON' ? 'con foto' : 'sin foto'}` : undefined
+    const notas: string[] = []
+    if (alcance === 'meses' && mesesElegidos.length > 0) notas.push(`Meses: ${mesesElegidos.join(', ')}`)
+    if (evidencia !== 'TODOS') notas.push(`Evidencia: ${evidencia === 'CON' ? 'con foto' : 'sin foto'}`)
+    if (insumosElegidos.length > 0) notas.push(`${columnaInsumo}: ${insumosElegidos.join(', ')}`)
 
     exportarPDF({
       titulo,
       columnaInsumo,
       registros: seleccionFinal,
-      filtroMes: notaMeses,
-      busqueda: notaEvidencia,
+      filtroMes: notas[0],
+      busqueda: notas.slice(1).join(' · ') || undefined,
     })
     onClose()
   }
@@ -109,6 +130,29 @@ export default function ExportarPDFModal({
               </select>
             </label>
           )}
+
+          <label className="exportar-campo">
+            {columnaInsumo} específicos <span className="opcional">(opcional, deja vacío para incluir todos)</span>
+            <input
+              type="text"
+              className="exportar-buscar-insumo"
+              placeholder={`Buscar ${columnaInsumo.toLowerCase()}...`}
+              value={buscarInsumo}
+              onChange={(e) => setBuscarInsumo(e.target.value)}
+            />
+            <div className="exportar-insumos-lista">
+              {insumosVisibles.length === 0 && <p className="exportar-insumos-vacio">Sin coincidencias.</p>}
+              {insumosVisibles.map((i) => (
+                <label key={i} className="exportar-insumo-item">
+                  <input type="checkbox" checked={insumosElegidos.includes(i)} onChange={() => toggleInsumo(i)} />
+                  {i}
+                </label>
+              ))}
+            </div>
+            {insumosElegidos.length > 0 && (
+              <span className="exportar-insumos-contador">{insumosElegidos.length} seleccionado(s)</span>
+            )}
+          </label>
         </div>
 
         <p className="exportar-resumen">Se exportarán {seleccionFinal.length} registro(s).</p>
