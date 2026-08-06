@@ -9,6 +9,7 @@ export interface DatoEtiqueta {
 }
 
 export type FormatoPapel = 'carta' | 'a5' | 'oficio' | 'doble-carta'
+export type Orientacion = 'vertical' | 'horizontal'
 
 export const FORMATOS_PAPEL: Record<FormatoPapel, { etiqueta: string; ancho: number; alto: number }> = {
   carta: { etiqueta: 'Carta', ancho: 215.9, alto: 279.4 },
@@ -30,15 +31,22 @@ function ajustarFuente(doc: jsPDF, texto: string, anchoMaximoMM: number, tamanoP
   return tamano
 }
 
-export function generarPDFEtiquetas(datos: DatoEtiqueta[], formato: FormatoPapel) {
-  const { ancho, alto } = FORMATOS_PAPEL[formato]
-  const doc = new jsPDF({ unit: 'mm', format: [ancho, alto], orientation: 'portrait' })
+export function generarPDFEtiquetas(
+  datos: DatoEtiqueta[],
+  formato: FormatoPapel,
+  orientacion: Orientacion = 'vertical'
+) {
+  const base = FORMATOS_PAPEL[formato]
+  const ancho = orientacion === 'horizontal' ? base.alto : base.ancho
+  const alto = orientacion === 'horizontal' ? base.ancho : base.alto
+  const orientacionJsPdf = orientacion === 'horizontal' ? 'landscape' : 'portrait'
+  const doc = new jsPDF({ unit: 'mm', format: [ancho, alto], orientation: orientacionJsPdf })
   const margenH = ancho * 0.1
   const anchoTexto = ancho - margenH * 2
   const centroX = ancho / 2
 
   datos.forEach((d, i) => {
-    if (i > 0) doc.addPage([ancho, alto], 'portrait')
+    if (i > 0) doc.addPage([ancho, alto], orientacionJsPdf)
 
     const campos: { texto: string; baseMM: number; minMM: number; negrita: boolean }[] = [
       { texto: d.tienda.toUpperCase(), baseMM: alto * 0.075, minMM: alto * 0.03, negrita: true },

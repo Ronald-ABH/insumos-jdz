@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { listarTiendas } from '../lib/api'
-import { FORMATOS_PAPEL, generarPDFEtiquetas, type FormatoPapel } from '../lib/pdfEtiquetas'
+import { FORMATOS_PAPEL, generarPDFEtiquetas, type FormatoPapel, type Orientacion } from '../lib/pdfEtiquetas'
 import { generarWordEtiquetas } from '../lib/wordEtiquetas'
 import type { Tienda } from '../types/registro'
 import './Etiquetas.css'
@@ -40,6 +40,7 @@ export default function Etiquetas() {
   const [fecha, setFecha] = useState('')
   const [vista, setVista] = useState<'elegir' | 'imprimir'>('elegir')
   const [formato, setFormato] = useState<FormatoPapel>('carta')
+  const [orientacion, setOrientacion] = useState<Orientacion>('vertical')
   const [menuAbierto, setMenuAbierto] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -124,12 +125,12 @@ export default function Etiquetas() {
 
   const manejarDescargarPDF = () => {
     setMenuAbierto(false)
-    generarPDFEtiquetas(datosParaDescarga(), formato)
+    generarPDFEtiquetas(datosParaDescarga(), formato, orientacion)
   }
 
   const manejarDescargarWord = () => {
     setMenuAbierto(false)
-    generarWordEtiquetas(datosParaDescarga(), formato)
+    generarWordEtiquetas(datosParaDescarga(), formato, orientacion)
   }
 
   if (loading) return <p className="registros-msg">Cargando...</p>
@@ -149,6 +150,10 @@ export default function Etiquetas() {
                   {f.etiqueta}
                 </option>
               ))}
+            </select>
+            <select value={orientacion} onChange={(e) => setOrientacion(e.target.value as Orientacion)}>
+              <option value="vertical">Vertical</option>
+              <option value="horizontal">Horizontal</option>
             </select>
             <div className="etiquetas-menu-wrap" ref={menuRef}>
               <button className="btn-primary" onClick={() => setMenuAbierto((v) => !v)}>
