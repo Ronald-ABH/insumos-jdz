@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { listarTiendas } from '../lib/api'
 import { FORMATOS_PAPEL, generarPDFEtiquetas, type FormatoPapel } from '../lib/pdfEtiquetas'
 import { generarWordEtiquetas } from '../lib/wordEtiquetas'
@@ -40,6 +40,18 @@ export default function Etiquetas() {
   const [fecha, setFecha] = useState('')
   const [vista, setVista] = useState<'elegir' | 'imprimir'>('elegir')
   const [formato, setFormato] = useState<FormatoPapel>('carta')
+  const [menuAbierto, setMenuAbierto] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuAbierto(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
 
   useEffect(() => {
     listarTiendas()
@@ -92,6 +104,7 @@ export default function Etiquetas() {
   const fechaFormateada = fecha ? formatearFecha(fecha) : '—'
 
   const manejarImprimir = () => {
+    setMenuAbierto(false)
     // Chrome usa el <title> de la página como encabezado al imprimir; lo vaciamos
     // un momento para que no aparezca "Solicitudes JDZ - D1" arriba de cada hoja.
     const tituloOriginal = document.title
@@ -110,10 +123,12 @@ export default function Etiquetas() {
     }))
 
   const manejarDescargarPDF = () => {
+    setMenuAbierto(false)
     generarPDFEtiquetas(datosParaDescarga(), formato)
   }
 
   const manejarDescargarWord = () => {
+    setMenuAbierto(false)
     generarWordEtiquetas(datosParaDescarga(), formato)
   }
 
@@ -135,15 +150,18 @@ export default function Etiquetas() {
                 </option>
               ))}
             </select>
-            <button className="btn-secondary" onClick={manejarDescargarPDF}>
-              Descargar PDF
-            </button>
-            <button className="btn-secondary" onClick={manejarDescargarWord}>
-              Descargar Word
-            </button>
-            <button className="btn-primary" onClick={manejarImprimir}>
-              Imprimir
-            </button>
+            <div className="etiquetas-menu-wrap" ref={menuRef}>
+              <button className="btn-primary" onClick={() => setMenuAbierto((v) => !v)}>
+                Imprimir ▾
+              </button>
+              {menuAbierto && (
+                <div className="etiquetas-menu">
+                  <button onClick={manejarImprimir}>Imprimir directo</button>
+                  <button onClick={manejarDescargarPDF}>Descargar como PDF</button>
+                  <button onClick={manejarDescargarWord}>Descargar como Word</button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className="etiquetas-grid">
