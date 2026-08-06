@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { listarTiendas } from '../lib/api'
 import { FORMATOS_PAPEL, generarPDFEtiquetas, type FormatoPapel } from '../lib/pdfEtiquetas'
+import { generarWordEtiquetas } from '../lib/wordEtiquetas'
 import type { Tienda } from '../types/registro'
 import './Etiquetas.css'
 
@@ -99,17 +100,21 @@ export default function Etiquetas() {
     document.title = tituloOriginal
   }
 
-  const manejarDescargar = () => {
-    generarPDFEtiquetas(
-      tiendasAImprimir.map((t) => ({
-        tienda: t.nombre,
-        departamento: t.departamento,
-        jdz: t.jdz,
-        insumo: insumo || '—',
-        fecha: fechaFormateada,
-      })),
-      formato
-    )
+  const datosParaDescarga = () =>
+    tiendasAImprimir.map((t) => ({
+      tienda: t.nombre,
+      departamento: t.departamento,
+      jdz: t.jdz,
+      insumo: insumo || '—',
+      fecha: fechaFormateada,
+    }))
+
+  const manejarDescargarPDF = () => {
+    generarPDFEtiquetas(datosParaDescarga(), formato)
+  }
+
+  const manejarDescargarWord = () => {
+    generarWordEtiquetas(datosParaDescarga(), formato)
   }
 
   if (loading) return <p className="registros-msg">Cargando...</p>
@@ -130,8 +135,11 @@ export default function Etiquetas() {
                 </option>
               ))}
             </select>
-            <button className="btn-secondary" onClick={manejarDescargar}>
+            <button className="btn-secondary" onClick={manejarDescargarPDF}>
               Descargar PDF
+            </button>
+            <button className="btn-secondary" onClick={manejarDescargarWord}>
+              Descargar Word
             </button>
             <button className="btn-primary" onClick={manejarImprimir}>
               Imprimir
