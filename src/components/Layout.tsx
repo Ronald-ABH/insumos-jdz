@@ -12,8 +12,8 @@ export default function Layout() {
         <div className="app-header-brand">
           <img src={d1Logo} alt="D1" className="app-logo" />
           <div>
-            <h1>Solicitudes JDZ</h1>
-            <span>Insumos y Hallazgos BPM / SST</span>
+            <h1>Insumos</h1>
+            <span>JDZ y Hallazgos BPM / SST</span>
           </div>
         </div>
         <button className="logout-btn" onClick={logout}>
