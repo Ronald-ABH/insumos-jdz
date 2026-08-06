@@ -98,7 +98,13 @@ export default function Etiquetas() {
   }
 
   const tiendasAImprimir = useMemo(
-    () => tiendas.filter((t) => seleccionados.has(t.id)).sort((a, b) => a.nombre.localeCompare(b.nombre)),
+    () =>
+      tiendas
+        .filter((t) => seleccionados.has(t.id))
+        .sort((a, b) => {
+          const depto = (a.departamento ?? '').localeCompare(b.departamento ?? '')
+          return depto !== 0 ? depto : a.nombre.localeCompare(b.nombre)
+        }),
     [tiendas, seleccionados]
   )
 

@@ -63,11 +63,22 @@ export async function generarWordEtiquetas(
       { texto: d.fecha, baseFraccion: 0.032, limite: 15, minPt: 10, negrita: false },
     ]
 
+    const tamanosPt = campos.map((c) => tamanoPt(c.texto, c.baseFraccion, alto, c.limite, c.minPt))
+    const espacioEntreLineasTwip = 200 // 10pt entre líneas
+
+    // Calcula cuánto espacio en blanco hay que dejar arriba para que el bloque de
+    // texto quede centrado verticalmente en la fila (esto funciona siempre, a
+    // diferencia de la propiedad de alineación vertical que algunos programas,
+    // como Google Docs, no respetan del todo).
+    const alturaLineasTwip = tamanosPt.reduce((suma, pt) => suma + pt * 1.15 * 20, 0)
+    const alturaTotalTwip = alturaLineasTwip + espacioEntreLineasTwip * (campos.length - 1)
+    const espacioSuperiorTwip = Math.max(0, Math.round((altoFilaTwip - alturaTotalTwip) / 2))
+
     const parrafos = campos.map((c, idx) => {
-      const pt = tamanoPt(c.texto, c.baseFraccion, alto, c.limite, c.minPt)
+      const pt = tamanosPt[idx]
       return new Paragraph({
         alignment: AlignmentType.CENTER,
-        spacing: { before: idx === 0 ? 0 : 200, after: 0 },
+        spacing: { before: idx === 0 ? espacioSuperiorTwip : espacioEntreLineasTwip, after: 0 },
         children: [new TextRun({ text: c.texto, bold: c.negrita, size: pt * 2 })],
       })
     })
