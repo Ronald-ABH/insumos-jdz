@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { listarTiendas } from '../lib/api'
+import { FORMATOS_PAPEL, generarPDFEtiquetas, type FormatoPapel } from '../lib/pdfEtiquetas'
 import type { Tienda } from '../types/registro'
 import './Etiquetas.css'
 
@@ -37,6 +38,7 @@ export default function Etiquetas() {
   const [insumo, setInsumo] = useState('')
   const [fecha, setFecha] = useState('')
   const [vista, setVista] = useState<'elegir' | 'imprimir'>('elegir')
+  const [formato, setFormato] = useState<FormatoPapel>('carta')
 
   useEffect(() => {
     listarTiendas()
@@ -97,6 +99,19 @@ export default function Etiquetas() {
     document.title = tituloOriginal
   }
 
+  const manejarDescargar = () => {
+    generarPDFEtiquetas(
+      tiendasAImprimir.map((t) => ({
+        tienda: t.nombre,
+        departamento: t.departamento,
+        jdz: t.jdz,
+        insumo: insumo || '—',
+        fecha: fechaFormateada,
+      })),
+      formato
+    )
+  }
+
   if (loading) return <p className="registros-msg">Cargando...</p>
   if (error) return <p className="registros-msg error">{error}</p>
 
@@ -107,9 +122,21 @@ export default function Etiquetas() {
           <button className="btn-secondary" onClick={() => setVista('elegir')}>
             ← Volver a elegir
           </button>
-          <button className="btn-primary" onClick={manejarImprimir}>
-            Imprimir
-          </button>
+          <div className="etiquetas-acciones-derecha">
+            <select value={formato} onChange={(e) => setFormato(e.target.value as FormatoPapel)}>
+              {Object.entries(FORMATOS_PAPEL).map(([clave, f]) => (
+                <option key={clave} value={clave}>
+                  {f.etiqueta}
+                </option>
+              ))}
+            </select>
+            <button className="btn-secondary" onClick={manejarDescargar}>
+              Descargar PDF
+            </button>
+            <button className="btn-primary" onClick={manejarImprimir}>
+              Imprimir
+            </button>
+          </div>
         </div>
         <div className="etiquetas-grid">
           {tiendasAImprimir.map((t) => {

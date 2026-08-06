@@ -42,6 +42,20 @@
   margin-bottom: 1.25rem;
 }
 
+.etiquetas-acciones-derecha {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.etiquetas-acciones-derecha select {
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
 .etiquetas-grid {
   display: flex;
   flex-wrap: wrap;
