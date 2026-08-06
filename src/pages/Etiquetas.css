@@ -114,21 +114,29 @@
 
   .etiqueta {
     width: 100vw;
-    height: 100vh;
+    height: 98vh;
+    max-height: 98vh;
     box-sizing: border-box;
     border: none;
     border-radius: 0;
-    padding: 10%;
+    padding: 8% 10%;
     justify-content: center;
     align-items: center;
     text-align: center;
-    gap: 6%;
+    gap: 5%;
     overflow: hidden;
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
   .etiqueta:not(:last-child) {
     break-after: page;
     page-break-after: always;
+  }
+
+  .etiqueta:last-child {
+    break-after: avoid;
+    page-break-after: avoid;
   }
 
   .etiqueta-tienda {
