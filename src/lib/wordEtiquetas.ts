@@ -10,6 +10,7 @@ import {
   Table,
   TableBorders,
   TableCell,
+  TableLayoutType,
   TableRow,
   TextRun,
   VerticalAlign,
@@ -89,6 +90,8 @@ export async function generarWordEtiquetas(
     children.push(
       new Table({
         width: { size: anchoTwip, type: WidthType.DXA },
+        columnWidths: [anchoTwip],
+        layout: TableLayoutType.FIXED,
         borders: TableBorders.NONE,
         rows: [
           new TableRow({
