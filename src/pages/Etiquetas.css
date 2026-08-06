@@ -113,16 +113,17 @@
   }
 
   .etiqueta {
-    width: 100%;
+    width: 100vw;
     height: 100vh;
     box-sizing: border-box;
     border: none;
     border-radius: 0;
-    padding: 8%;
+    padding: 10%;
     justify-content: center;
     align-items: center;
     text-align: center;
     gap: 6%;
+    overflow: hidden;
   }
 
   .etiqueta:not(:last-child) {
@@ -159,6 +160,12 @@
   }
 
   @page {
-    margin: 10mm;
+    margin: 0;
+    size: auto;
+  }
+
+  html,
+  body {
+    margin: 0;
   }
 }
