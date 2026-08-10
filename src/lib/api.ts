@@ -3,6 +3,44 @@ import type { NuevoRegistro, Registro, Tienda } from '../types/registro'
 
 export type TableName = 'insumos' | 'hallazgos'
 
+// Comprime una imagen antes de subirla: la redimensiona (máx. 1600px de lado)
+// y la convierte a JPEG con buena calidad. Si el archivo no es una imagen, ya
+// es pequeño (<150KB), o algo falla en el proceso, se sube el original tal
+// cual sin arriesgar el registro.
+async function comprimirImagen(input: Blob, maxDim = 1600, calidad = 0.72): Promise<Blob> {
+  if (!input.type.startsWith('image/') || input.size < 150_000) return input
+
+  try {
+    const bitmap = await createImageBitmap(input)
+    let { width, height } = bitmap
+    if (width > maxDim || height > maxDim) {
+      if (width >= height) {
+        height = Math.round(height * (maxDim / width))
+        width = maxDim
+      } else {
+        width = Math.round(width * (maxDim / height))
+        height = maxDim
+      }
+    }
+    const canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return input
+    ctx.fillStyle = '#FFFFFF'
+    ctx.fillRect(0, 0, width, height)
+    ctx.drawImage(bitmap, 0, 0, width, height)
+
+    const comprimido = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, 'image/jpeg', calidad)
+    )
+    if (comprimido && comprimido.size < input.size) return comprimido
+    return input
+  } catch {
+    return input
+  }
+}
+
 export async function listRegistros(table: TableName): Promise<Registro[]> {
   const { data, error } = await supabase
     .from(table)
@@ -40,12 +78,15 @@ export async function deleteRegistro(table: TableName, id: string): Promise<void
 }
 
 export async function subirEvidencia(file: File): Promise<string> {
-  const ext = file.name.split('.').pop() ?? 'jpg'
+  const comprimido = await comprimirImagen(file)
+  const esJpeg = comprimido !== file
+  const ext = esJpeg ? 'jpg' : (file.name.split('.').pop() ?? 'jpg')
   const path = `${crypto.randomUUID()}.${ext}`
 
-  const { error } = await supabase.storage.from('evidencias').upload(path, file, {
+  const { error } = await supabase.storage.from('evidencias').upload(path, comprimido, {
     cacheControl: '3600',
     upsert: false,
+    contentType: esJpeg ? 'image/jpeg' : file.type || undefined,
   })
   if (error) throw error
 
@@ -74,12 +115,15 @@ export async function crearTienda(
 }
 
 export async function subirEvidenciaBlob(blob: Blob, extension: string): Promise<string> {
-  const path = `${crypto.randomUUID()}.${extension}`
+  const comprimido = await comprimirImagen(blob)
+  const esJpeg = comprimido !== blob
+  const ext = esJpeg ? 'jpg' : extension
+  const path = `${crypto.randomUUID()}.${ext}`
 
-  const { error } = await supabase.storage.from('evidencias').upload(path, blob, {
+  const { error } = await supabase.storage.from('evidencias').upload(path, comprimido, {
     cacheControl: '3600',
     upsert: false,
-    contentType: blob.type || undefined,
+    contentType: esJpeg ? 'image/jpeg' : blob.type || undefined,
   })
   if (error) throw error
 
