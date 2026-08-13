@@ -62,11 +62,12 @@ export async function listarTiendas(): Promise<Tienda[]> {
 export async function crearTienda(
   nombre: string,
   ceco: string | null = null,
-  departamento: string | null = null
+  departamento: string | null = null,
+  jdz: string | null = null
 ): Promise<Tienda> {
   const { data, error } = await supabase
     .from('tiendas')
-    .insert({ nombre, ceco, departamento })
+    .insert({ nombre, ceco, departamento, jdz })
     .select()
     .single()
   if (error) throw error
