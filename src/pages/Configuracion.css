@@ -1,42 +1,42 @@
 .config-card {
   background: white;
-  border-radius: 16px;
-  padding: 1.75rem;
+  border-radius: var(--radio-lg);
+  padding: var(--sp-5);
   max-width: 480px;
-  box-shadow: 0 4px 18px rgba(168, 15, 28, 0.08);
+  box-shadow: var(--sombra-2);
   border: 1px solid var(--borde);
 }
 
 .config-card h2 {
-  margin: 0 0 0.6rem;
+  margin: 0 0 var(--sp-2);
   color: var(--d1-rojo-oscuro);
-  font-size: 1.2rem;
+  font-size: var(--fs-md);
 }
 
 .config-texto {
   color: var(--texto-suave);
-  font-size: 0.88rem;
+  font-size: var(--fs-sm);
   line-height: 1.5;
-  margin: 0 0 1.25rem;
+  margin: 0 0 var(--sp-5);
 }
 
 .config-form {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--sp-2);
 }
 
 .config-form label {
-  font-size: 0.85rem;
-  color: #374151;
+  font-size: var(--fs-sm);
+  color: var(--gris-700);
 }
 
 .config-form input {
-  padding: 0.6rem 0.75rem;
+  padding: var(--sp-2) var(--sp-3);
   border: 1px solid var(--borde);
-  border-radius: 8px;
-  font-size: 0.95rem;
-  margin-bottom: 0.5rem;
+  border-radius: var(--radio-md);
+  font-size: var(--fs-base);
+  margin-bottom: var(--sp-2);
 }
 
 .config-form input:focus {
@@ -47,12 +47,12 @@
 
 .config-mensaje {
   color: #0a7a3d;
-  font-size: 0.85rem;
-  margin: 0 0 0.5rem;
+  font-size: var(--fs-sm);
+  margin: 0 0 var(--sp-2);
 }
 
 .config-error {
   color: var(--d1-rojo-oscuro);
-  font-size: 0.85rem;
-  margin: 0 0 0.5rem;
+  font-size: var(--fs-sm);
+  margin: 0 0 var(--sp-2);
 }
