@@ -1,8 +1,8 @@
 .registros-table {
   background: white;
-  border-radius: 16px;
-  padding: 1.5rem 1.6rem;
-  box-shadow: 0 6px 24px rgba(168, 15, 28, 0.08);
+  border-radius: var(--radio-lg);
+  padding: var(--sp-5);
+  box-shadow: var(--sombra-2);
   border: 1px solid var(--borde);
 }
 
@@ -10,54 +10,54 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 1.25rem;
-  gap: 1rem;
+  margin-bottom: var(--sp-5);
+  gap: var(--sp-4);
   flex-wrap: wrap;
 }
 
 .registros-toolbar h2 {
   margin: 0;
   color: var(--texto);
-  font-size: 1.25rem;
+  font-size: var(--fs-lg);
   font-weight: 700;
   letter-spacing: -0.01em;
 }
 
 .registros-count {
-  font-size: 0.82rem;
+  font-size: var(--fs-sm);
   color: var(--texto-suave);
 }
 
 .registros-toolbar-acciones {
   display: flex;
-  gap: 0.6rem;
+  gap: var(--sp-2);
   flex-wrap: wrap;
 }
 
 .registros-filtros {
   display: flex;
-  gap: 0.65rem;
-  margin-bottom: 1.25rem;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-5);
   flex-wrap: wrap;
 }
 
 .registros-filtros input {
   flex: 1;
   min-width: 220px;
-  padding: 0.6rem 0.85rem;
+  padding: var(--sp-2) var(--sp-3);
   border: 1px solid var(--borde);
-  border-radius: 9px;
-  font-size: 0.88rem;
-  background: #fcfafa;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  border-radius: var(--radio-md);
+  font-size: var(--fs-sm);
+  background: var(--gris-100);
+  transition: border-color var(--dur-1), background var(--dur-1);
 }
 
 .registros-filtros select {
-  padding: 0.6rem 0.85rem;
+  padding: var(--sp-2) var(--sp-3);
   border: 1px solid var(--borde);
-  border-radius: 9px;
-  font-size: 0.88rem;
-  background: #fcfafa;
+  border-radius: var(--radio-md);
+  font-size: var(--fs-sm);
+  background: var(--gris-100);
   color: var(--texto);
 }
 
@@ -71,7 +71,7 @@
 
 .registros-msg {
   color: var(--texto-suave);
-  padding: 1rem 0;
+  padding: var(--sp-4) 0;
 }
 
 .registros-msg.error {
@@ -80,42 +80,42 @@
 
 .table-scroll {
   overflow-x: auto;
-  border-radius: 12px;
+  border-radius: var(--radio-md);
   border: 1px solid var(--borde);
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.87rem;
+  font-size: var(--fs-sm);
 }
 
 thead th {
   text-align: left;
-  padding: 0.75rem 0.85rem;
+  padding: var(--sp-3);
   background: var(--d1-rojo-claro);
   color: var(--d1-rojo-oscuro);
   border-bottom: 1px solid #f3c9cc;
   white-space: nowrap;
   font-weight: 700;
-  font-size: 0.76rem;
+  font-size: var(--fs-xs);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
 tbody td {
-  padding: 0.65rem 0.85rem;
-  border-bottom: 1px solid #f4eded;
+  padding: var(--sp-3);
+  border-bottom: 1px solid var(--gris-100);
   vertical-align: middle;
   color: var(--texto);
 }
 
 tbody tr:nth-child(even) {
-  background: #fdfafa;
+  background: var(--gris-100);
 }
 
 tbody tr {
-  transition: background 0.12s ease;
+  transition: background var(--dur-1);
 }
 
 tbody tr:hover {
@@ -125,21 +125,21 @@ tbody tr:hover {
 .registros-empty {
   text-align: center;
   color: var(--texto-suave);
-  padding: 2.75rem 0 !important;
+  padding: var(--sp-7) 0 !important;
 }
 
 .evidencia-thumb {
   width: 42px;
   height: 42px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: var(--radio-sm);
   border: 1px solid var(--borde);
-  transition: transform 0.15s ease;
+  transition: transform var(--dur-1);
 }
 
 .evidencia-thumb:hover {
   transform: scale(1.6);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--sombra-3);
 }
 
 .registros-acciones {
@@ -151,11 +151,11 @@ tbody tr:hover {
   border: none;
   color: var(--d1-rojo);
   cursor: pointer;
-  font-size: 0.83rem;
-  padding: 0.25rem 0.45rem;
+  font-size: var(--fs-sm);
+  padding: var(--sp-1) var(--sp-2);
   font-weight: 600;
-  border-radius: 6px;
-  transition: background 0.12s ease;
+  border-radius: var(--radio-sm);
+  transition: background var(--dur-1);
 }
 
 .link-btn:hover {
