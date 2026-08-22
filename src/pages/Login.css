@@ -1,84 +1,101 @@
-.login-screen {
+.app-shell {
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #a80f1c 0%, #d81324 55%, #f0454f 100%);
-  padding: 1.5rem;
-}
-
-.login-card {
-  background: #ffffff;
-  border-radius: 18px;
-  padding: 2.5rem 2rem;
-  width: 100%;
-  max-width: 380px;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.28);
+  background: var(--bg);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
 }
 
-.login-logo {
-  display: block;
-  margin: 0 auto 1rem;
-  height: 64px;
-  width: auto;
-}
-
-.login-card h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: var(--d1-rojo-oscuro);
-  text-align: center;
-}
-
-.login-subtitle {
-  margin: 0 0 1.5rem;
-  text-align: center;
-  color: var(--texto-suave);
-  font-size: 0.9rem;
-}
-
-.login-card label {
-  font-size: 0.85rem;
-  color: #374151;
-  margin-bottom: 0.35rem;
-}
-
-.login-card input {
-  padding: 0.7rem 0.85rem;
-  border: 1px solid var(--borde);
-  border-radius: 9px;
-  font-size: 1rem;
-  margin-bottom: 0.75rem;
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.login-card input:focus {
-  border-color: var(--d1-rojo);
-  box-shadow: 0 0 0 3px rgba(216, 19, 36, 0.15);
-}
-
-.login-error {
-  color: var(--d1-rojo-oscuro);
-  font-size: 0.85rem;
-  margin: -0.25rem 0 0.75rem;
-}
-
-.login-card button {
-  background: var(--d1-rojo);
+.app-header {
+  background: linear-gradient(120deg, var(--d1-rojo-oscuro), var(--d1-rojo));
   color: white;
-  border: none;
-  border-radius: 9px;
-  padding: 0.8rem;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s ease;
+  padding: var(--sp-4) var(--sp-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--sombra-rojo);
+  position: relative;
+  z-index: 5;
 }
 
-.login-card button:hover {
-  background: var(--d1-rojo-oscuro);
+.app-header-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.app-logo {
+  height: 40px;
+  width: auto;
+  border-radius: var(--radio-md);
+  background: white;
+  padding: 4px;
+  box-shadow: var(--sombra-1);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: white;
+}
+
+.app-header span {
+  font-size: var(--fs-xs);
+  color: rgba(255, 255, 255, 0.82);
+  letter-spacing: 0.01em;
+}
+
+.logout-btn {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--radio-md);
+  cursor: pointer;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  transition: background var(--dur-1), transform var(--dur-1);
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.24);
+  transform: translateY(-1px);
+}
+
+.app-nav {
+  background: white;
+  border-bottom: 1px solid var(--borde);
+  display: flex;
+  gap: var(--sp-1);
+  padding: var(--sp-2) var(--sp-5);
+}
+
+.app-nav a {
+  padding: var(--sp-2) var(--sp-4);
+  text-decoration: none;
+  color: var(--texto-suave);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  border-radius: var(--radio-md);
+  transition: background var(--dur-1), color var(--dur-1);
+}
+
+.app-nav a:hover {
+  background: var(--d1-rojo-claro);
+  color: var(--d1-rojo-oscuro);
+}
+
+.app-nav a.active {
+  color: white;
+  background: var(--d1-rojo);
+}
+
+.app-content {
+  flex: 1;
+  padding: var(--sp-5);
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
