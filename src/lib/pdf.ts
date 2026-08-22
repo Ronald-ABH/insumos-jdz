@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import type { Registro } from '../types/registro'
+import { formatearFecha } from './constants'
 
 interface ExportarPDFOpciones {
   titulo: string
@@ -39,7 +40,7 @@ export function exportarPDF({
     r.tienda,
     String(r.cantidad),
     r.insumo,
-    r.fecha_envio ?? '—',
+    formatearFecha(r.fecha_envio),
     r.evidencia_url ? 'Ver foto' : '—',
   ])
 
