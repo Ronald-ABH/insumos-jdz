@@ -1,14 +1,60 @@
 :root {
+  /* ---- Marca D1 ---- */
   --d1-rojo: #d81324;
   --d1-rojo-oscuro: #a80f1c;
   --d1-rojo-claro: #fdeceb;
   --d1-amarillo: #ffcc00;
-  --texto: #2a2730;
-  --texto-suave: #6b7280;
-  --borde: #e8dcdc;
-  --bg: #fdf7f7;
+  --d1-amarillo-oscuro: #b38600;
+  --d1-amarillo-claro: #fff8e1;
 
-  font: 16px/1.5 system-ui, 'Segoe UI', Roboto, sans-serif;
+  /* ---- Neutros (escala fija) ---- */
+  --gris-900: #1f2430;
+  --gris-700: #4b5262;
+  --gris-500: #6b7280;
+  --gris-300: #d5d9e0;
+  --gris-100: #f4f5f7;
+  --gris-0: #ffffff;
+
+  /* Alias que ya usa el resto del código — no se rompe nada existente */
+  --texto: var(--gris-900);
+  --texto-suave: var(--gris-500);
+  --borde: var(--gris-300);
+  --bg: #faf9f9;
+
+  /* ---- Tipografía: escala modular ---- */
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.85rem;
+  --fs-base: 0.95rem;
+  --fs-md: 1.1rem;
+  --fs-lg: 1.35rem;
+  --fs-xl: 1.7rem;
+
+  /* ---- Espaciado (escala de 4px) ---- */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+
+  /* ---- Radios ---- */
+  --radio-sm: 6px;
+  --radio-md: 9px;
+  --radio-lg: 14px;
+  --radio-full: 999px;
+
+  /* ---- Sombras (elevación) ---- */
+  --sombra-1: 0 1px 3px rgba(31, 36, 48, 0.08);
+  --sombra-2: 0 6px 20px rgba(31, 36, 48, 0.1);
+  --sombra-3: 0 16px 40px rgba(31, 36, 48, 0.18);
+  --sombra-rojo: 0 4px 14px rgba(216, 19, 36, 0.28);
+
+  /* ---- Transiciones ---- */
+  --dur-1: 0.15s ease;
+  --dur-2: 0.25s ease;
+
+  font: var(--fs-base) / 1.55 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
   color: var(--texto);
   background: var(--bg);
   color-scheme: light;
