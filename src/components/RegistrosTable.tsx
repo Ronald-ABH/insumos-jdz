@@ -1,272 +1,202 @@
-import { useEffect, useMemo, useState } from 'react'
-import {
-  type TableName,
-  createRegistro,
-  deleteRegistro,
-  listRegistros,
-  updateRegistro,
-} from '../lib/api'
-import { supabase } from '../lib/supabaseClient'
-import type { NuevoRegistro, Registro } from '../types/registro'
-import { MESES } from '../lib/constants'
-import RegistroModal from './RegistroModal'
-import ImportarExcelModal from './ImportarExcelModal'
-import ExportarPDFModal from './ExportarPDFModal'
-import './RegistrosTable.css'
-
-interface Props {
-  table: TableName
-  title: string
-  columnaInsumo: string
+.registros-table {
+  background: white;
+  border-radius: var(--radio-lg);
+  padding: var(--sp-5);
+  box-shadow: var(--sombra-2);
+  border: 1px solid var(--borde);
 }
 
-export default function RegistrosTable({ table, title, columnaInsumo }: Props) {
-  const [registros, setRegistros] = useState<Registro[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [modalAbierto, setModalAbierto] = useState(false)
-  const [importarAbierto, setImportarAbierto] = useState(false)
-  const [exportarAbierto, setExportarAbierto] = useState(false)
-  const [editando, setEditando] = useState<Registro | null>(null)
-  const [busqueda, setBusqueda] = useState('')
-  const [filtroMes, setFiltroMes] = useState('TODOS')
-  const [filtroEvidencia, setFiltroEvidencia] = useState('TODOS')
+.registros-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--sp-5);
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
 
-  const cargar = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await listRegistros(table)
-      setRegistros(data)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudieron cargar los datos.')
-    } finally {
-      setLoading(false)
-    }
-  }
+.registros-toolbar h2 {
+  margin: 0;
+  color: var(--texto);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
 
-  useEffect(() => {
-    cargar()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [table])
+.registros-count {
+  font-size: var(--fs-sm);
+  color: var(--texto-suave);
+}
 
-  // Sincronización en tiempo real: refleja cambios hechos desde otros dispositivos
-  useEffect(() => {
-    const canal = supabase
-      .channel(`realtime-${table}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table },
-        (payload) => {
-          if (payload.eventType === 'INSERT') {
-            const nuevo = payload.new as Registro
-            setRegistros((prev) => (prev.some((r) => r.id === nuevo.id) ? prev : [nuevo, ...prev]))
-          } else if (payload.eventType === 'UPDATE') {
-            const actualizado = payload.new as Registro
-            setRegistros((prev) => prev.map((r) => (r.id === actualizado.id ? actualizado : r)))
-          } else if (payload.eventType === 'DELETE') {
-            const eliminado = payload.old as Registro
-            setRegistros((prev) => prev.filter((r) => r.id !== eliminado.id))
-          }
-        }
-      )
-      .subscribe()
+.registros-toolbar-acciones {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
 
-    return () => {
-      supabase.removeChannel(canal)
-    }
-  }, [table])
+.registros-filtros {
+  display: flex;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-5);
+  flex-wrap: wrap;
+}
 
-  const filtrados = useMemo(() => {
-    const normalizar = (s: string) =>
-      s
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase()
-        .trim()
-    const texto = normalizar(busqueda)
-    return registros.filter((r) => {
-      const coincideMes = filtroMes === 'TODOS' || r.mes === filtroMes
-      const coincideTexto =
-        !texto ||
-        normalizar(r.ceco ?? '').includes(texto) ||
-        normalizar(r.tienda).includes(texto) ||
-        normalizar(r.insumo).includes(texto)
-      const coincideEvidencia =
-        filtroEvidencia === 'TODOS' ||
-        (filtroEvidencia === 'CON' && !!r.evidencia_url) ||
-        (filtroEvidencia === 'SIN' && !r.evidencia_url)
-      return coincideMes && coincideTexto && coincideEvidencia
-    })
-  }, [registros, filtroMes, busqueda, filtroEvidencia])
+.registros-filtros input {
+  flex: 1;
+  min-width: 220px;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-md);
+  font-size: var(--fs-sm);
+  background: var(--gris-100);
+  transition: border-color var(--dur-1), background var(--dur-1);
+}
 
-  const handleNuevo = () => {
-    setEditando(null)
-    setModalAbierto(true)
-  }
+.registros-filtros select {
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-md);
+  font-size: var(--fs-sm);
+  background: var(--gris-100);
+  color: var(--texto);
+}
 
-  const handleEditar = (r: Registro) => {
-    setEditando(r)
-    setModalAbierto(true)
-  }
+.registros-filtros input:focus,
+.registros-filtros select:focus {
+  outline: none;
+  border-color: var(--d1-rojo);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(216, 19, 36, 0.12);
+}
 
-  const handleEliminar = async (r: Registro) => {
-    const ok = confirm(`¿Eliminar el registro de "${r.insumo}" en ${r.tienda}?`)
-    if (!ok) return
-    try {
-      await deleteRegistro(table, r.id)
-      setRegistros((prev) => prev.filter((x) => x.id !== r.id))
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'No se pudo eliminar.')
-    }
-  }
+.registros-msg {
+  color: var(--texto-suave);
+  padding: var(--sp-4) 0;
+}
 
-  const handleGuardar = async (data: NuevoRegistro) => {
-    if (editando) {
-      const actualizado = await updateRegistro(table, editando.id, data)
-      setRegistros((prev) => prev.map((r) => (r.id === actualizado.id ? actualizado : r)))
-    } else {
-      const nuevo = await createRegistro(table, data)
-      setRegistros((prev) => [nuevo, ...prev])
-    }
-    setModalAbierto(false)
-    setEditando(null)
-  }
+.registros-msg.error {
+  color: var(--d1-rojo-oscuro);
+}
 
-  return (
-    <div className="registros-table" id={`tabla-${table}`}>
-      <div className="registros-toolbar">
-        <div>
-          <h2>{title}</h2>
-          <span className="registros-count">{filtrados.length} registro(s)</span>
-        </div>
-        <div className="registros-toolbar-acciones">
-          <button className="btn-secondary" onClick={() => setImportarAbierto(true)}>
-            Importar Excel
-          </button>
-          <button
-            className="btn-secondary"
-            onClick={() => setExportarAbierto(true)}
-            disabled={registros.length === 0}
-          >
-            Exportar PDF
-          </button>
-          <button className="btn-primary" onClick={handleNuevo}>
-            + Agregar
-          </button>
-        </div>
-      </div>
+.table-scroll {
+  overflow-x: auto;
+  border-radius: var(--radio-md);
+  border: 1px solid var(--borde);
+}
 
-      <div className="registros-filtros">
-        <input
-          type="text"
-          placeholder="Buscar por CECO, tienda o insumo..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-        />
-        <select value={filtroMes} onChange={(e) => setFiltroMes(e.target.value)}>
-          <option value="TODOS">Todos los meses</option>
-          {MESES.map((m) => (
-            <option key={m} value={m}>
-              {m}
-            </option>
-          ))}
-        </select>
-        <select value={filtroEvidencia} onChange={(e) => setFiltroEvidencia(e.target.value)}>
-          <option value="TODOS">Con o sin evidencia</option>
-          <option value="CON">Con evidencia</option>
-          <option value="SIN">Sin evidencia</option>
-        </select>
-      </div>
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
 
-      {loading && <p className="registros-msg">Cargando...</p>}
-      {error && <p className="registros-msg error">{error}</p>}
+thead th {
+  text-align: left;
+  padding: var(--sp-3);
+  background: var(--d1-rojo-claro);
+  color: var(--d1-rojo-oscuro);
+  border-bottom: 1px solid #f3c9cc;
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
 
-      {!loading && !error && (
-        <div className="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>Mes</th>
-                <th>CECO</th>
-                <th>Tienda</th>
-                <th>Cantidad</th>
-                <th>{columnaInsumo}</th>
-                <th>Fecha de envío</th>
-                <th>Evidencia</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtrados.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="registros-empty">
-                    No hay registros todavía. Da clic en "+ Agregar" para crear el primero.
-                  </td>
-                </tr>
-              )}
-              {filtrados.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.mes}</td>
-                  <td>{r.ceco ?? '—'}</td>
-                  <td>{r.tienda}</td>
-                  <td>{r.cantidad}</td>
-                  <td>{r.insumo}</td>
-                  <td>{r.fecha_envio ?? '—'}</td>
-                  <td>
-                    {r.evidencia_url ? (
-                      <a href={r.evidencia_url} target="_blank" rel="noreferrer">
-                        <img className="evidencia-thumb" src={r.evidencia_url} alt="Evidencia" />
-                      </a>
-                    ) : (
-                      '—'
-                    )}
-                  </td>
-                  <td className="registros-acciones">
-                    <button className="link-btn" onClick={() => handleEditar(r)}>
-                      Editar
-                    </button>
-                    <button className="link-btn danger" onClick={() => handleEliminar(r)}>
-                      Eliminar
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radio-full);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
 
-      {modalAbierto && (
-        <RegistroModal
-          registro={editando}
-          onClose={() => {
-            setModalAbierto(false)
-            setEditando(null)
-          }}
-          onSave={handleGuardar}
-        />
-      )}
+.badge-pendiente {
+  background: var(--d1-amarillo-claro);
+  color: var(--d1-amarillo-oscuro);
+}
 
-      {importarAbierto && (
-        <ImportarExcelModal
-          table={table}
-          onClose={() => setImportarAbierto(false)}
-          onImportado={cargar}
-        />
-      )}
+.badge-resuelto {
+  background: #e6f4ea;
+  color: #0a7a3d;
+}
 
-      {exportarAbierto && (
-        <ExportarPDFModal
-          titulo={title}
-          columnaInsumo={columnaInsumo}
-          todos={registros}
-          filtrados={filtrados}
-          filtroMes={filtroMes}
-          busqueda={busqueda}
-          onClose={() => setExportarAbierto(false)}
-        />
-      )}
-    </div>
-  )
+.badge-critico {
+  background: var(--d1-rojo-claro);
+  color: var(--d1-rojo-oscuro);
+}
+
+tbody td {
+  padding: var(--sp-3);
+  border-bottom: 1px solid var(--gris-100);
+  vertical-align: middle;
+  color: var(--texto);
+}
+
+tbody tr:nth-child(even) {
+  background: var(--gris-100);
+}
+
+tbody tr {
+  transition: background var(--dur-1);
+}
+
+tbody tr:hover {
+  background: var(--d1-rojo-claro);
+}
+
+.registros-empty {
+  text-align: center;
+  color: var(--texto-suave);
+  padding: var(--sp-7) 0 !important;
+}
+
+.evidencia-thumb {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: var(--radio-sm);
+  border: 1px solid var(--borde);
+  transition: transform var(--dur-1);
+}
+
+.evidencia-thumb:hover {
+  transform: scale(1.6);
+  box-shadow: var(--sombra-3);
+}
+
+.registros-acciones {
+  white-space: nowrap;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--d1-rojo);
+  cursor: pointer;
+  font-size: var(--fs-sm);
+  padding: var(--sp-1) var(--sp-2);
+  font-weight: 600;
+  border-radius: var(--radio-sm);
+  transition: background var(--dur-1);
+}
+
+.link-btn:hover {
+  background: rgba(216, 19, 36, 0.1);
+}
+
+.link-btn.danger {
+  color: #8a1116;
+}
+
+.link-btn.danger:hover {
+  background: rgba(138, 17, 22, 0.1);
 }
