@@ -8,7 +8,7 @@ import {
 } from '../lib/api'
 import { supabase } from '../lib/supabaseClient'
 import type { NuevoRegistro, Registro } from '../types/registro'
-import { MESES } from '../lib/constants'
+import { MESES, formatearFecha } from '../lib/constants'
 import RegistroModal from './RegistroModal'
 import ImportarExcelModal from './ImportarExcelModal'
 import ExportarPDFModal from './ExportarPDFModal'
@@ -212,7 +212,7 @@ export default function RegistrosTable({ table, title, columnaInsumo }: Props) {
                   <td>{r.tienda}</td>
                   <td>{r.cantidad}</td>
                   <td>{r.insumo}</td>
-                  <td>{r.fecha_envio ?? '—'}</td>
+                  <td>{formatearFecha(r.fecha_envio)}</td>
                   <td>
                     {r.evidencia_url ? (
                       <a href={r.evidencia_url} target="_blank" rel="noreferrer">
