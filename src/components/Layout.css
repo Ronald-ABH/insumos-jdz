@@ -72,13 +72,20 @@
 }
 
 .app-nav a {
-  padding: 0.55rem 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
   text-decoration: none;
   color: var(--texto-suave);
   font-weight: 600;
-  font-size: 0.9rem;
-  border-radius: 8px;
-  transition: background 0.15s ease, color 0.15s ease;
+  font-size: var(--fs-sm);
+  border-radius: var(--radio-md);
+  transition: background var(--dur-1), color var(--dur-1);
+}
+
+.app-nav a svg {
+  flex-shrink: 0;
 }
 
 .app-nav a:hover {
