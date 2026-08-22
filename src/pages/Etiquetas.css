@@ -1,58 +1,58 @@
 .etiquetas-page {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--sp-4);
 }
 
 .etiquetas-lote {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 1rem;
-  background: #f9fafb;
-  border-radius: 10px;
-  padding: 0.9rem 1rem;
+  gap: var(--sp-4);
+  background: var(--gris-100);
+  border-radius: var(--radio-md);
+  padding: var(--sp-4);
 }
 
 .etiquetas-lote label {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
-  font-size: 0.82rem;
-  color: #374151;
+  gap: var(--sp-1);
+  font-size: var(--fs-sm);
+  color: var(--gris-700);
 }
 
 .etiquetas-lote input {
-  padding: 0.55rem 0.7rem;
-  border: 1px solid #d0d5dd;
-  border-radius: 8px;
-  font-size: 0.95rem;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-md);
+  font-size: var(--fs-base);
   font-family: inherit;
 }
 
 .etiquetas-aviso {
   margin: -0.5rem 0 0;
-  font-size: 0.8rem;
-  color: #b45309;
+  font-size: var(--fs-sm);
+  color: var(--d1-amarillo-oscuro);
 }
 
 .etiquetas-barra {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--sp-5);
 }
 
 .etiquetas-acciones-derecha {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: var(--sp-2);
 }
 
 .etiquetas-acciones-derecha select {
-  padding: 0.55rem 0.7rem;
-  border: 1px solid #d0d5dd;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-md);
+  font-size: var(--fs-sm);
   font-family: inherit;
 }
 
@@ -62,13 +62,13 @@
 
 .etiquetas-menu {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + var(--sp-2));
   right: 0;
   background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(17, 24, 39, 0.15);
-  padding: 0.35rem;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-md);
+  box-shadow: var(--sombra-2);
+  padding: var(--sp-1);
   display: flex;
   flex-direction: column;
   min-width: 190px;
@@ -77,13 +77,13 @@
 
 .etiquetas-menu button {
   text-align: left;
-  padding: 0.55rem 0.7rem;
+  padding: var(--sp-2) var(--sp-3);
   border: none;
   background: none;
-  border-radius: 6px;
+  border-radius: var(--radio-sm);
   cursor: pointer;
-  font-size: 0.88rem;
-  color: #1f2937;
+  font-size: var(--fs-sm);
+  color: var(--gris-900);
   font-family: inherit;
 }
 
@@ -94,9 +94,14 @@
 .etiquetas-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: var(--sp-3);
   align-content: flex-start;
 }
+
+/* ---- La etiqueta impresa mantiene su propio diseño fijo:
+   estos valores definen el tamaño físico real de la etiqueta
+   de envío, no son "chrome" de la interfaz, así que no usan
+   los tokens de espaciado/tipografía de la app. ---- */
 
 .etiqueta {
   border: 1.5px solid #1f2937;
