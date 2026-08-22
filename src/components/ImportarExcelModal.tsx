@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { createRegistro, subirEvidenciaBlob, type TableName } from '../lib/api'
 import { listarHojas, parsearHoja, type FilaImportada, type HojaExcel } from '../lib/excelImport'
+import { formatearFecha } from '../lib/constants'
 import './ImportarExcelModal.css'
 
 interface Props {
@@ -173,7 +174,7 @@ export default function ImportarExcelModal({ table, onClose, onImportado }: Prop
                       <td>{f.tienda}</td>
                       <td>{f.cantidad}</td>
                       <td>{f.insumo}</td>
-                      <td>{f.fecha_envio ?? '—'}</td>
+                      <td>{formatearFecha(f.fecha_envio)}</td>
                       <td>{f.imagen ? '📷' : '—'}</td>
                     </tr>
                   ))}
