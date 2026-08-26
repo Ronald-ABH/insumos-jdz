@@ -56,8 +56,8 @@ export async function generarWordEtiquetas(
 
     const campos: { texto: string; baseFraccion: number; limite: number; minPt: number; negrita: boolean }[] = [
       { texto: d.tienda.toUpperCase(), baseFraccion: 0.075, limite: 16, minPt: 18, negrita: true },
-      ...(d.departamento
-        ? [{ texto: d.departamento.toUpperCase(), baseFraccion: 0.032, limite: 20, minPt: 10, negrita: false }]
+      ...(d.zona
+        ? [{ texto: d.zona.toUpperCase(), baseFraccion: 0.032, limite: 20, minPt: 10, negrita: false }]
         : []),
       { texto: d.jdz ?? '—', baseFraccion: 0.045, limite: 18, minPt: 12, negrita: false },
       { texto: d.insumo.toUpperCase(), baseFraccion: 0.055, limite: 20, minPt: 12, negrita: true },
