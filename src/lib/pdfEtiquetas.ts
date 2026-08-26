@@ -2,7 +2,7 @@ import jsPDF from 'jspdf'
 
 export interface DatoEtiqueta {
   tienda: string
-  departamento: string | null
+  zona: string | null
   jdz: string | null
   insumo: string
   fecha: string
@@ -50,8 +50,8 @@ export function generarPDFEtiquetas(
 
     const campos: { texto: string; baseMM: number; minMM: number; negrita: boolean }[] = [
       { texto: d.tienda.toUpperCase(), baseMM: alto * 0.075, minMM: alto * 0.03, negrita: true },
-      ...(d.departamento
-        ? [{ texto: d.departamento.toUpperCase(), baseMM: alto * 0.032, minMM: alto * 0.018, negrita: false }]
+      ...(d.zona
+        ? [{ texto: d.zona.toUpperCase(), baseMM: alto * 0.032, minMM: alto * 0.018, negrita: false }]
         : []),
       { texto: d.jdz ?? '—', baseMM: alto * 0.045, minMM: alto * 0.02, negrita: false },
       { texto: d.insumo.toUpperCase(), baseMM: alto * 0.055, minMM: alto * 0.02, negrita: true },
