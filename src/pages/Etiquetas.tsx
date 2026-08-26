@@ -13,7 +13,7 @@ function normalizar(texto: string) {
     .trim()
 }
 
-// Calcula un tama\u00f1o de letra (en vh) que se achica cuando el texto es largo,
+// Calcula un tamaño de letra (en vh) que se achica cuando el texto es largo,
 // para que siempre quepa dentro de la hoja de la etiqueta.
 function tamanoFuente(texto: string, base: number, limite: number, minimo: number) {
   const largo = texto.trim().length
@@ -70,7 +70,7 @@ export default function Etiquetas() {
     return tiendas.filter(
       (t) =>
         normalizar(t.nombre).includes(texto) ||
-        normalizar(t.departamento ?? '').includes(texto) ||
+        normalizar(t.zona ?? '').includes(texto) ||
         normalizar(t.jdz ?? '').includes(texto)
     )
   }, [tiendas, busqueda])
@@ -102,8 +102,8 @@ export default function Etiquetas() {
       tiendas
         .filter((t) => seleccionados.has(t.id))
         .sort((a, b) => {
-          const depto = (a.departamento ?? '').localeCompare(b.departamento ?? '')
-          return depto !== 0 ? depto : a.nombre.localeCompare(b.nombre)
+          const zona = (a.zona ?? '').localeCompare(b.zona ?? '')
+          return zona !== 0 ? zona : a.nombre.localeCompare(b.nombre)
         }),
     [tiendas, seleccionados]
   )
@@ -123,7 +123,7 @@ export default function Etiquetas() {
   const datosParaDescarga = () =>
     tiendasAImprimir.map((t) => ({
       tienda: t.nombre,
-      departamento: t.departamento,
+      zona: t.zona,
       jdz: t.jdz,
       insumo: insumo || '—',
       fecha: fechaFormateada,
@@ -179,7 +179,7 @@ export default function Etiquetas() {
           {tiendasAImprimir.map((t) => {
             const estiloAjustable = {
               '--fs-tienda': tamanoFuente(t.nombre, 8, 16, 3),
-              '--fs-depto': tamanoFuente(t.departamento ?? '', 3.5, 20, 2),
+              '--fs-depto': tamanoFuente(t.zona ?? '', 3.5, 20, 2),
               '--fs-jdz': tamanoFuente(t.jdz ?? '—', 5, 18, 2.2),
               '--fs-insumo': tamanoFuente(insumo || '—', 6, 20, 2.2),
               '--fs-fecha': tamanoFuente(fechaFormateada, 3.5, 15, 1.8),
@@ -187,7 +187,7 @@ export default function Etiquetas() {
             return (
               <div className="etiqueta" key={t.id} style={estiloAjustable}>
                 <div className="etiqueta-tienda">{t.nombre}</div>
-                {t.departamento && <div className="etiqueta-depto">{t.departamento}</div>}
+                {t.zona && <div className="etiqueta-depto">{t.zona}</div>}
                 <div className="etiqueta-jdz">{t.jdz ?? '—'}</div>
                 <div className="etiqueta-insumo">{insumo || '—'}</div>
                 <div className="etiqueta-fecha">{fechaFormateada}</div>
@@ -241,7 +241,7 @@ export default function Etiquetas() {
       <div className="registros-filtros">
         <input
           type="text"
-          placeholder="Buscar por tienda, departamento o jefe de zona..."
+          placeholder="Buscar por tienda, zona o jefe de zona..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
         />
@@ -259,7 +259,7 @@ export default function Etiquetas() {
                 />
               </th>
               <th>Tienda</th>
-              <th>Departamento</th>
+              <th>Zona</th>
               <th>Jefe de Zona</th>
             </tr>
           </thead>
@@ -277,7 +277,7 @@ export default function Etiquetas() {
                   <input type="checkbox" checked={seleccionados.has(t.id)} onChange={() => toggle(t.id)} />
                 </td>
                 <td>{t.nombre}</td>
-                <td>{t.departamento ?? '—'}</td>
+                <td>{t.zona ?? '—'}</td>
                 <td>{t.jdz ?? '—'}</td>
               </tr>
             ))}
