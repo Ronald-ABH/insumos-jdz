@@ -24,7 +24,7 @@ export default function TiendaInput({ value, onChange, onSeleccionarTienda }: Pr
   const [error, setError] = useState<string | null>(null)
   const [formularioAbierto, setFormularioAbierto] = useState(false)
   const [nuevoCeco, setNuevoCeco] = useState('')
-  const [nuevoDepartamento, setNuevoDepartamento] = useState('')
+  const [nuevaZona, setNuevaZona] = useState('')
   const [nuevoJdz, setNuevoJdz] = useState('')
   const contenedorRef = useRef<HTMLDivElement>(null)
 
@@ -68,7 +68,7 @@ export default function TiendaInput({ value, onChange, onSeleccionarTienda }: Pr
   const abrirFormulario = () => {
     setError(null)
     setNuevoCeco('')
-    setNuevoDepartamento('')
+    setNuevaZona('')
     setNuevoJdz('')
     setFormularioAbierto(true)
   }
@@ -87,7 +87,7 @@ export default function TiendaInput({ value, onChange, onSeleccionarTienda }: Pr
       const nueva = await crearTienda(
         nombre.toUpperCase(),
         nuevoCeco.trim() || null,
-        nuevoDepartamento.trim() || null,
+        nuevaZona.trim() || null,
         nuevoJdz.trim() || null
       )
       setTiendas((prev) => [...prev, nueva].sort((a, b) => a.nombre.localeCompare(b.nombre)))
@@ -157,11 +157,11 @@ export default function TiendaInput({ value, onChange, onSeleccionarTienda }: Pr
                 />
               </label>
               <label>
-                Departamento (para la etiqueta)
+                Zona (para la etiqueta)
                 <input
-                  value={nuevoDepartamento}
-                  onChange={(e) => setNuevoDepartamento(e.target.value)}
-                  placeholder="Ej: TOLIMA"
+                  value={nuevaZona}
+                  onChange={(e) => setNuevaZona(e.target.value)}
+                  placeholder="Ej: TOLIMA NORTE"
                   autoComplete="off"
                 />
               </label>
